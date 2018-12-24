@@ -5,6 +5,8 @@
 
 import Cocoa
 import Quartz
+import AppKit
+
 
 class ViewController: NSViewController {
     
@@ -150,8 +152,12 @@ class ViewController: NSViewController {
             
             let infoString = infoAbout(url: selectedUrl)
             if !infoString.isEmpty {
+                var imageProperties: NSDictionary = Dictionary<String, String>() as NSDictionary
+
                 let formattedText = formatInfoText(infoString)
                 infoTextView.textStorage?.setAttributedString(formattedText)
+                
+                srcImageView.setImageWith(selectedUrl)
             }
         }
     }
@@ -181,6 +187,42 @@ class ViewController: NSViewController {
                 let formattedText = formatInfoText(infoString)
                 infoTextView.textStorage?.setAttributedString(formattedText)
                 //saveInfoButton.isEnabled = true
+                srcImageView.setImageWith(selectedUrl)
+                let dst = matchingSelectedItem?.lastPathComponent
+                var rowToHighlight = 0
+                for srcFileURL:URL in self.srcFileList {
+                    let src = srcFileURL.lastPathComponent
+                    NSLog("commparing \(src) to \(dst)")
+
+                    if (selectedUrl != nil) {
+                        if (ignoreCaseCheckbox.state == NSButton.StateValue.on) {
+                            //                        //NSLog ("ignoring case")
+                            if(src.caseInsensitiveCompare(dst!) == .orderedSame) {
+                                NSLog("FOUND \(src)")
+                                //self.tableView.scrollRowToVisible(rowToHighlight)
+                                //let selectedIndexPath = IndexPath(rowToHighlight, 0)
+                                //tableView.selectRow(at: selectedIndexPath, animated: true, scrollPosition: UITableViewScrollPosition.none)
+                                //tableView(tableView, didSelectRowAt: selectedIndexPath)
+//                                //self.tableView.selectRowIndexes(<#T##indexes: IndexSet##IndexSet#>, byExtendingSelection: <#T##Bool#>)
+//                                //let indexPath = NSIndexPath(index: row)
+//                                let indexSet = IndexSet(row)
+//                                tableView.selectRowIndexes(IndexSet indexSet, byExtendingSelection: false)
+//                                //tableView.selectRowAtIndexPath(indexPath, animated: false, scrollPosition: .None)
+//
+//                                // Calling manually to the delegate method
+//                                tableView(tableView, didSelectRowAtIndexPath: indexPath)
+                                
+                            }
+                        } else {
+                            //NSLog ("respecting case")
+                            if (src == dst) {
+                                NSLog("FOUND \(src)")
+                                //myMatchingFilesList.append(destFileURL)
+                            }
+                        }
+                    }
+                    rowToHighlight = rowToHighlight+1
+                }
             }
         }
     }
@@ -381,7 +423,9 @@ extension ViewController: NSTableViewDelegate {
             
             if let cell = matchingFilesTableView.makeView(withIdentifier: convertToNSUserInterfaceItemIdentifier("FileCell"), owner: nil)
                 as? NSTableCellView {
-                cell.textField?.stringValue = item.lastPathComponent
+                //cell.textField?.stringValue = item.lastPathComponent
+                cell.textField?.stringValue = item.relativePath
+
                 cell.imageView?.image = fileIcon
                 return cell
             }        }

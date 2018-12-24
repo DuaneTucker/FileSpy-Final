@@ -11,6 +11,8 @@
 		26ECD33D1E874B5C00380F56 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26ECD33C1E874B5C00380F56 /* ViewController.swift */; };
 		26ECD33F1E874B5C00380F56 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26ECD33E1E874B5C00380F56 /* Assets.xcassets */; };
 		26ECD3421E874B5C00380F56 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26ECD3401E874B5C00380F56 /* Main.storyboard */; };
+		DC83F89A21CED31D004FB33B /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC83F89821CED31D004FB33B /* QuartzCore.framework */; };
+		DC83F89B21CED31D004FB33B /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC83F89921CED31D004FB33B /* Quartz.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +22,8 @@
 		26ECD33E1E874B5C00380F56 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		26ECD3411E874B5C00380F56 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		26ECD3431E874B5C00380F56 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DC83F89821CED31D004FB33B /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		DC83F89921CED31D004FB33B /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -27,6 +31,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DC83F89A21CED31D004FB33B /* QuartzCore.framework in Frameworks */,
+				DC83F89B21CED31D004FB33B /* Quartz.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -38,6 +44,7 @@
 			children = (
 				26ECD3391E874B5C00380F56 /* FileSpy */,
 				26ECD3381E874B5C00380F56 /* Products */,
+				DC83F89721CED31D004FB33B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -59,6 +66,15 @@
 				26ECD3431E874B5C00380F56 /* Info.plist */,
 			);
 			path = FileSpy;
+			sourceTree = "<group>";
+		};
+		DC83F89721CED31D004FB33B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DC83F89921CED31D004FB33B /* Quartz.framework */,
+				DC83F89821CED31D004FB33B /* QuartzCore.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
