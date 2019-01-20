@@ -13,6 +13,7 @@
 		26ECD3421E874B5C00380F56 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26ECD3401E874B5C00380F56 /* Main.storyboard */; };
 		DC83F89A21CED31D004FB33B /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC83F89821CED31D004FB33B /* QuartzCore.framework */; };
 		DC83F89B21CED31D004FB33B /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC83F89921CED31D004FB33B /* Quartz.framework */; };
+		DCE3D85B21ED341E00E7FA78 /* instrumented.instrpkg in Sources */ = {isa = PBXBuildFile; fileRef = DCE3D85A21ED341E00E7FA78 /* instrumented.instrpkg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,8 @@
 		26ECD3431E874B5C00380F56 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DC83F89821CED31D004FB33B /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		DC83F89921CED31D004FB33B /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
+		DCE3D85821ED341E00E7FA78 /* instrumented.instrdst */ = {isa = PBXFileReference; explicitFileType = com.apple.instruments.instrdst; includeInIndex = 0; path = instrumented.instrdst; sourceTree = BUILT_PRODUCTS_DIR; };
+		DCE3D85A21ED341E00E7FA78 /* instrumented.instrpkg */ = {isa = PBXFileReference; lastKnownFileType = "com.apple.instruments.package-definition"; path = instrumented.instrpkg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				26ECD3391E874B5C00380F56 /* FileSpy */,
+				DCE3D85921ED341E00E7FA78 /* instrumented */,
 				26ECD3381E874B5C00380F56 /* Products */,
 				DC83F89721CED31D004FB33B /* Frameworks */,
 			);
@@ -52,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				26ECD3371E874B5C00380F56 /* FileSpy.app */,
+				DCE3D85821ED341E00E7FA78 /* instrumented.instrdst */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -77,6 +82,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		DCE3D85921ED341E00E7FA78 /* instrumented */ = {
+			isa = PBXGroup;
+			children = (
+				DCE3D85A21ED341E00E7FA78 /* instrumented.instrpkg */,
+			);
+			path = instrumented;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -97,6 +110,21 @@
 			productReference = 26ECD3371E874B5C00380F56 /* FileSpy.app */;
 			productType = "com.apple.product-type.application";
 		};
+		DCE3D85721ED341E00E7FA78 /* instrumented */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DCE3D85E21ED341E00E7FA78 /* Build configuration list for PBXNativeTarget "instrumented" */;
+			buildPhases = (
+				DCE3D85621ED341E00E7FA78 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = instrumented;
+			productName = instrumented;
+			productReference = DCE3D85821ED341E00E7FA78 /* instrumented.instrdst */;
+			productType = "com.apple.product-type.instruments-package";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -110,6 +138,10 @@
 					26ECD3361E874B5B00380F56 = {
 						CreatedOnToolsVersion = 8.2.1;
 						LastSwiftMigration = 1010;
+						ProvisioningStyle = Automatic;
+					};
+					DCE3D85721ED341E00E7FA78 = {
+						CreatedOnToolsVersion = 10.1;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -128,6 +160,7 @@
 			projectRoot = "";
 			targets = (
 				26ECD3361E874B5B00380F56 /* FileSpy */,
+				DCE3D85721ED341E00E7FA78 /* instrumented */,
 			);
 		};
 /* End PBXProject section */
@@ -151,6 +184,14 @@
 			files = (
 				26ECD33D1E874B5C00380F56 /* ViewController.swift in Sources */,
 				26ECD33B1E874B5C00380F56 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DCE3D85621ED341E00E7FA78 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DCE3D85B21ED341E00E7FA78 /* instrumented.instrpkg in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,6 +343,28 @@
 			};
 			name = Release;
 		};
+		DCE3D85C21ED341E00E7FA78 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Instruments/Packages";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VERSIONING_SYSTEM = "";
+			};
+			name = Debug;
+		};
+		DCE3D85D21ED341E00E7FA78 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Instruments/Packages";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VERSIONING_SYSTEM = "";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -319,6 +382,15 @@
 			buildConfigurations = (
 				26ECD3471E874B5C00380F56 /* Debug */,
 				26ECD3481E874B5C00380F56 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DCE3D85E21ED341E00E7FA78 /* Build configuration list for PBXNativeTarget "instrumented" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DCE3D85C21ED341E00E7FA78 /* Debug */,
+				DCE3D85D21ED341E00E7FA78 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

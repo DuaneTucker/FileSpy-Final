@@ -20,12 +20,24 @@
  * THE SOFTWARE.
  */
 import Cocoa
+//private let mainQueueKey = UnsafeMutableRawPointer(1)
+//private let mainQueueValue = UnsafeMutablePointer<Void>.allocate(capacity: 1)
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     // Insert code here to initialize your application
+
+    
+    // Associate a key-value pair with the main queue
+//    DispatchQueue.main.setSpecific(key: mainQueueKey, value: mainQueueValue)
+//    dispatch_queue_set_specific(
+//        DispatchQueue.main,
+//        mainQueueKey,
+//        mainQueueValue,
+//        nil
+//    )
   }
 
   func applicationWillTerminate(_ aNotification: Notification) {
