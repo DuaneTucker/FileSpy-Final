@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="XfG-lQ-9wD">
     <dependencies>
         <deployment identifier="macosx"/>
-        <development version="10000" identifier="xcode"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
         <plugIn identifier="com.apple.imagekit.ibplugin" version="14460.31"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -692,13 +691,13 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="32" horizontalPageScroll="10" verticalLineScroll="32" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EgE-qj-Phz" userLabel="Source Files Table View">
-                                <rect key="frame" x="20" y="101" width="251" height="485"/>
+                                <rect key="frame" x="20" y="154" width="251" height="432"/>
                                 <clipView key="contentView" id="4eg-2k-Fmt">
-                                    <rect key="frame" x="1" y="1" width="249" height="483"/>
+                                    <rect key="frame" x="1" y="1" width="249" height="430"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnSelection="YES" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" rowHeight="30" viewBased="YES" id="xo6-kP-ovj">
-                                            <rect key="frame" x="0.0" y="0.0" width="253" height="483"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="253" height="430"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -762,7 +761,7 @@
                                     </subviews>
                                 </clipView>
                                 <scroller key="horizontalScroller" autoresizesSubviews="NO" verticalHuggingPriority="750" horizontal="YES" id="O1f-tL-a3L">
-                                    <rect key="frame" x="1" y="468" width="249" height="16"/>
+                                    <rect key="frame" x="1" y="415" width="249" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="r0v-5H-O8g">
@@ -770,18 +769,18 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
-                            <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ld1-Cj-NyT" userLabel="File Info Scroll View">
-                                <rect key="frame" x="287" y="119" width="519" height="17"/>
+                            <scrollView misplaced="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ld1-Cj-NyT" userLabel="File Info Scroll View">
+                                <rect key="frame" x="287" y="102" width="519" height="44"/>
                                 <clipView key="contentView" drawsBackground="NO" id="gg9-gt-CJe">
-                                    <rect key="frame" x="1" y="1" width="517" height="15"/>
+                                    <rect key="frame" x="1" y="1" width="517" height="42"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" id="JaE-gd-4th">
-                                            <rect key="frame" x="0.0" y="0.0" width="649" height="15"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="649" height="42"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            <size key="minSize" width="517" height="15"/>
+                                            <size key="minSize" width="517" height="42"/>
                                             <size key="maxSize" width="995" height="10000000"/>
                                             <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                         </textView>
@@ -792,13 +791,13 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="FUc-v0-UEy">
-                                    <rect key="frame" x="502" y="1" width="16" height="15"/>
+                                    <rect key="frame" x="502" y="1" width="16" height="42"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="DrL-gQ-4El">
                                 <rect key="frame" x="14" y="70" width="166" height="32"/>
-                                <buttonCell key="cell" type="push" title="Select From Folder" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dby-S4-m5m">
+                                <buttonCell key="cell" type="push" title="Select Src Folder" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dby-S4-m5m">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
@@ -861,8 +860,63 @@
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
                             </button>
-                            <scrollView horizontalLineScroll="32" horizontalPageScroll="10" verticalLineScroll="32" verticalPageScroll="10" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" verticalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="7k8-3u-CND" userLabel="Matching Files Table View">
-                                <rect key="frame" x="823" y="119" width="250" height="467"/>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="giR-Nk-UvT" userLabel="CompareNcharsEnable">
+                                <rect key="frame" x="916" y="5" width="63" height="22"/>
+                                <buttonCell key="cell" type="check" title="Enable" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="v0e-QJ-rVJ">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OUi-Cy-kM4">
+                                <rect key="frame" x="508" y="24" width="278" height="17"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="274" id="OKl-VV-R7t"/>
+                                </constraints>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" alignment="center" id="dzw-1X-Whl">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xBl-4b-TZr" userLabel="Search Button">
+                                <rect key="frame" x="488" y="54" width="116" height="32"/>
+                                <buttonCell key="cell" type="push" title="Start Search" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KaH-H6-cPP">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="startSearch:" target="XfG-lQ-9wD" id="qii-jk-CuV"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="yGX-Sz-gmY">
+                                <rect key="frame" x="198" y="34" width="72" height="18"/>
+                                <buttonCell key="cell" type="check" title="Recurse" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="qsF-w8-9sP">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <button verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="V1W-2R-ljd">
+                                <rect key="frame" x="384" y="54" width="103" height="32"/>
+                                <buttonCell key="cell" type="push" title="Delete Src" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Nql-9T-vu2">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="deleteSrcFile:" target="XfG-lQ-9wD" id="Yf9-O2-JlM"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ep8-nh-tHJ">
+                                <rect key="frame" x="18" y="123" width="149" height="18"/>
+                                <buttonCell key="cell" type="check" title="Hide Non-Duplicates" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="P2j-vK-n4k">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="hideNonDupes:" target="XfG-lQ-9wD" id="pUe-uy-FwS"/>
+                                </connections>
+                            </button>
+                            <scrollView misplaced="YES" horizontalLineScroll="32" horizontalPageScroll="10" verticalLineScroll="32" verticalPageScroll="10" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" verticalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="7k8-3u-CND" userLabel="Matching Files Table View">
+                                <rect key="frame" x="822" y="119" width="250" height="467"/>
                                 <clipView key="contentView" autoresizesSubviews="NO" canDrawConcurrently="YES" copiesOnScroll="NO" id="5T5-FD-1jr">
                                     <rect key="frame" x="1" y="1" width="248" height="465"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -942,41 +996,6 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="giR-Nk-UvT" userLabel="CompareNcharsEnable">
-                                <rect key="frame" x="916" y="5" width="63" height="22"/>
-                                <buttonCell key="cell" type="check" title="Enable" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="v0e-QJ-rVJ">
-                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                            </button>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OUi-Cy-kM4">
-                                <rect key="frame" x="508" y="24" width="278" height="17"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="274" id="OKl-VV-R7t"/>
-                                </constraints>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" alignment="center" id="dzw-1X-Whl">
-                                    <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xBl-4b-TZr" userLabel="Search Button">
-                                <rect key="frame" x="488" y="54" width="116" height="32"/>
-                                <buttonCell key="cell" type="push" title="Start Search" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KaH-H6-cPP">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="startSearch:" target="XfG-lQ-9wD" id="qii-jk-CuV"/>
-                                </connections>
-                            </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="yGX-Sz-gmY">
-                                <rect key="frame" x="198" y="34" width="72" height="18"/>
-                                <buttonCell key="cell" type="check" title="Recurse" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="qsF-w8-9sP">
-                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="ld1-Cj-NyT" firstAttribute="leading" secondItem="EgE-qj-Phz" secondAttribute="trailing" constant="16" id="0CE-cm-0OC"/>
@@ -995,12 +1014,13 @@
                             <constraint firstItem="ld1-Cj-NyT" firstAttribute="bottom" secondItem="7k8-3u-CND" secondAttribute="bottom" id="Lvu-JK-Q6T"/>
                             <constraint firstItem="MYU-do-VBr" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="jCG-92-98n" secondAttribute="trailing" constant="-154" id="Mu7-kx-KGd"/>
                             <constraint firstItem="WCO-Ie-qhq" firstAttribute="width" secondItem="MYU-do-VBr" secondAttribute="width" id="O4Q-vf-He9"/>
+                            <constraint firstItem="V1W-2R-ljd" firstAttribute="top" secondItem="xBl-4b-TZr" secondAttribute="top" id="QU9-9U-Enz"/>
                             <constraint firstItem="OUi-Cy-kM4" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="510" id="QXd-44-a83"/>
                             <constraint firstItem="WCO-Ie-qhq" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="DrL-gQ-4El" secondAttribute="trailing" constant="-154" id="QoJ-l6-0od"/>
                             <constraint firstItem="ld1-Cj-NyT" firstAttribute="top" secondItem="mMT-0G-ZC2" secondAttribute="bottom" constant="18" id="SnW-WB-7Vu"/>
                             <constraint firstItem="xBl-4b-TZr" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="TxV-dk-Yff"/>
                             <constraint firstItem="04R-Su-9vw" firstAttribute="top" secondItem="BqM-vu-z4M" secondAttribute="bottom" constant="16" id="Ufs-mk-Apa"/>
-                            <constraint firstAttribute="bottom" secondItem="EgE-qj-Phz" secondAttribute="bottom" constant="101" id="Wdx-Wh-nRn"/>
+                            <constraint firstAttribute="bottom" secondItem="EgE-qj-Phz" secondAttribute="bottom" constant="154" id="Wdx-Wh-nRn"/>
                             <constraint firstItem="EgE-qj-Phz" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" id="XiA-If-WSX"/>
                             <constraint firstItem="DrL-gQ-4El" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" id="Xlp-Xt-w9K"/>
                             <constraint firstItem="SIE-Sb-xDi" firstAttribute="top" secondItem="04R-Su-9vw" secondAttribute="bottom" constant="-3" id="Znm-gv-27e"/>
@@ -1013,7 +1033,9 @@
                             <constraint firstItem="giR-Nk-UvT" firstAttribute="centerX" secondItem="SIE-Sb-xDi" secondAttribute="centerX" id="jYc-SA-GIy"/>
                             <constraint firstItem="xBl-4b-TZr" firstAttribute="top" secondItem="ld1-Cj-NyT" secondAttribute="bottom" constant="37" id="kRa-mY-8pY"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="04R-Su-9vw" secondAttribute="trailing" id="mne-sr-9fb"/>
+                            <constraint firstItem="Ep8-nh-tHJ" firstAttribute="leading" secondItem="O1f-tL-a3L" secondAttribute="leading" id="nPK-0k-fDO"/>
                             <constraint firstItem="SIE-Sb-xDi" firstAttribute="centerX" secondItem="04R-Su-9vw" secondAttribute="centerX" id="nkI-5U-z1w"/>
+                            <constraint firstAttribute="bottom" secondItem="V1W-2R-ljd" secondAttribute="bottom" constant="61" id="ot4-7A-heT"/>
                             <constraint firstItem="xBl-4b-TZr" firstAttribute="bottom" secondItem="SIE-Sb-xDi" secondAttribute="bottom" constant="-28" id="pRr-G3-ZFa"/>
                             <constraint firstItem="xBl-4b-TZr" firstAttribute="centerX" secondItem="mMT-0G-ZC2" secondAttribute="centerX" id="pWe-Pz-gjP"/>
                             <constraint firstAttribute="trailing" secondItem="7k8-3u-CND" secondAttribute="trailing" constant="20" symbolic="YES" id="prt-lf-YR3"/>
@@ -1027,9 +1049,11 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="DeleteSrcBtn" destination="V1W-2R-ljd" id="n1V-1w-icL"/>
                         <outlet property="Enable_n_chars" destination="giR-Nk-UvT" id="S9z-TL-oEx"/>
                         <outlet property="compare_nCharsLable" destination="04R-Su-9vw" id="rl0-ll-zhr"/>
                         <outlet property="filesMatchingSearchLbl" destination="OUi-Cy-kM4" id="39a-CY-FEt"/>
+                        <outlet property="hideNonDupChkbox" destination="Ep8-nh-tHJ" id="sJu-Bn-pwn"/>
                         <outlet property="ignoreCaseCheckbox" destination="BqM-vu-z4M" id="Nkx-bE-S2Y"/>
                         <outlet property="infoTextView" destination="JaE-gd-4th" id="ipq-Jw-keg"/>
                         <outlet property="matchingFilesTableView" destination="R0N-gT-L2w" id="5Fo-w4-0zk"/>

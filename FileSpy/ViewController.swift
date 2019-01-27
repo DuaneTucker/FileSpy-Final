@@ -24,6 +24,8 @@ class ViewController: NSViewController {
     @IBOutlet weak var srcImageView: IKImageView!
     
     @IBOutlet weak var compare_nCharsLable: NSTextField!
+    @IBOutlet weak var DeleteSrcBtn: NSButton!
+    @IBOutlet weak var hideNonDupChkbox: NSButton!
     @IBOutlet weak var nCharsSlider: NSSlider!
     @IBOutlet weak var Enable_n_chars: NSButton!
     @IBOutlet weak var recurseCkbx: NSButton!
@@ -34,27 +36,87 @@ class ViewController: NSViewController {
     var matchingFileList: [URL] = []
     var showInvisibles = false
     
+    @IBAction func hideNonDupes(_ sender: Any) {
+        
+    }
+    @IBAction func deleteSrcFile(_ sender: Any) {
+
+        DispatchQueue.main.async { [unowned self] in
+            guard let selectedUrl = self.selectedItem else {
+                return
+            }
+            let a: NSAlert = NSAlert()
+            
+            a.messageText = "Delete File?"
+            a.informativeText = "Are you sure you want to delete \(selectedUrl)?"
+            a.alertStyle = NSAlert.Style.warning
+            a.addButton(withTitle: "Delete")
+            a.addButton(withTitle: "Cancel")
+            
+            a.beginSheetModal(for: self.view.window!, completionHandler: { (modalResponse: NSApplication.ModalResponse) -> Void in
+                if(modalResponse == NSApplication.ModalResponse.alertFirstButtonReturn){
+                    let fileManager = FileManager.default
+                    do {
+                        try fileManager.removeItem(at: selectedUrl)
+                        //DispatchQueue.main.async { [unowned self] in
+                            var index = 0;
+                            for fileUrl:URL in self.srcFileList {
+                                if (fileUrl == selectedUrl) {
+                                    self.srcFileList.remove(at: index)
+                                    break
+                                }
+                                index += 1
+                            }
+                            self.selectedItem = nil
+                            self.tableView.reloadData()
+                            self.DeleteSrcBtn.isEnabled = false
+                        //}
+                        
+                    }
+                    catch let error as NSError {
+                        print("Ooops! Something went wrong: \(error)")
+                        self.showErrorDialogIn(title:"Major Malfunction", message:"Error occurred deleting \(selectedUrl)")
+                    }
+                    print("Document deleted")
+                }
+            })
+    //        DispatchQueue.main.async { [unowned self] in
+    //            //highlightInMatchingTable(file: selectedUrl)
+    //        }
+            
+        }
+    }
+    
+    func searchFolder(folder: URL) {
+        var files: [URL] = getFolderContents(folder: folder)
+        
+        while (files.count > 0) {
+            if (files[0].hasDirectoryPath) {
+                // we've found a directory. Get it's contents and add them to the
+                // end of master list; they'll be searched later.
+                searchFolder(folder: files[0])
+
+//                files.append(contentsOf: getMatchingSrcFileList(folderNm: files[0]))
+                files.remove(at: 0) // Remove this directory from the search list
+            } else {
+                // Not a directory. If the file matches one in the src file list, add it
+                // to the dest list.
+                if (isMatchingSrcFileList(file: files[0])) {
+                    self.internalDestFileList.append(files[0])
+                }
+                files.remove(at: 0)
+            }
+        }
+    }
     // This function is called as the first step of processing the Search button click.
     // The recursion checkbox is used to determine if subdirectories should be explored.
     func fillInternalMatchingList () {
         if let selectSearchFolder = selectDstFolder {
+            // Start with an empty destination list.
             internalDestFileList.removeAll()
             
             if (recurseCkbx.state == NSButton.StateValue.on) {
-                var files: [URL] = getFolderContents(folder: selectSearchFolder)
-                
-                while (files.count > 0) {
-                    if (files[0].hasDirectoryPath) {
-                        //files.append(contentsOf: getFolderFiles(folder: files[0]))
-                        files.append(contentsOf: getMatchingSrcFileList(folderNm: files[0]))
-                        files.remove(at: 0)
-                    } else {
-                        if (isMatchingSrcFileList(file: files[0])) {
-                            self.internalDestFileList.append(files[0])
-                        }
-                        files.remove(at: 0)
-                    }
-                }
+                searchFolder(folder: selectSearchFolder)
             } else {  // do not recurse; ignore subfolders
                 let searchFolderContents: [URL] = getFolderContents(folder: selectSearchFolder)
                 for fileUrl:URL in searchFolderContents {
@@ -68,7 +130,7 @@ class ViewController: NSViewController {
             filesMatchingSearchLbl.stringValue = "\(numMatching) matching items located"
         } else {
             filesMatchingSearchLbl.stringValue = ""
-            showErrorDialogIn(title:"Bad Destination", message:"Invalid destination search folder", addButtons: false)
+            showErrorDialogIn(title:"Bad Destination", message:"Invalid destination search folder")
         }
     }
     
@@ -82,7 +144,7 @@ class ViewController: NSViewController {
 
         for destFileURL:URL in self.internalDestFileList {
             let dst = destFileURL.lastPathComponent
-            NSLog("commparing \(src) to \(dst)")
+            //NSLog("commparing \(src) to \(dst)")
             
             //NOTE: I think this comparison should only be done in the fillInternalMatchingList function
             // That way, the only files in the internal list would have already been verified to match.
@@ -120,33 +182,35 @@ class ViewController: NSViewController {
 
         for srcFileURL:URL in self.srcFileList {
             let src = srcFileURL.lastPathComponent
-            //NSLog("looking up dups for \(src)")
+            let srcPath = srcFileURL.absoluteURL
+            let dstPath = file.absoluteURL
             
-            if (compareFiles(src: src, dst: dst)) {
-                //NSLog("FOUND \(dst)")
-                matches = true
-                break
+            // make sure we're not comparing the same file in the same directory
+            if (srcPath != dstPath) {
+                //NSLog("looking up dups for \(src)")
+                
+                if (compareFiles(src: src, dst: dst)) {
+                    //NSLog("FOUND \(dst)")
+                    matches = true
+                    break
+                }
             }
         }
         
         return matches
     }
     
-    func showErrorDialogIn(title: String, message: String, addButtons: Bool) {
+    
+    func showErrorDialogIn(title: String, message: String) {
         let a: NSAlert = NSAlert()
         a.messageText = title
         a.informativeText = message
         a.alertStyle = NSAlert.Style.warning
 
-        if (addButtons) {
-            a.addButton(withTitle: "Delete")
-            a.addButton(withTitle: "Cancel")
-        }
-        
         a.beginSheetModal(for: self.view.window!, completionHandler: { (modalResponse: NSApplication.ModalResponse) -> Void in
-            if(modalResponse == NSApplication.ModalResponse.alertFirstButtonReturn){
-                print("Document deleted")
-            }
+//            if(modalResponse == NSApplication.ModalResponse.alertFirstButtonReturn){
+//                print("Document deleted")
+//            }
         })
     }
     
@@ -158,7 +222,7 @@ class ViewController: NSViewController {
         }
         if (ignoreCaseCheckbox.state == NSButton.StateValue.on) {
             //NSLog ("ignoring case")
-            if(src.caseInsensitiveCompare(dst) == .orderedSame){
+            if (src.caseInsensitiveCompare(dst) == .orderedSame){
                 ret = true
             }
         } else {
@@ -180,10 +244,11 @@ class ViewController: NSViewController {
     @IBAction func startSearch(_ sender: Any) {
         //var myMatchingFilesList: [URL] = []
         //let destSrchList: [URL] = self.destFolderFileList
-        startSearchBtn.isEnabled = false
         NSLog("Starting search for matches")
         
         DispatchQueue.main.async { [unowned self] in
+            self.startSearchBtn.isEnabled = false
+
             self.matchingFileList.removeAll()
             self.matchingFilesTableView.reloadData()
 
@@ -199,7 +264,7 @@ class ViewController: NSViewController {
                     self.matchingFileList.removeAll()
                     self.matchingFilesTableView.reloadData()
                 //}
-                self.showErrorDialogIn(title:"No Results", message:"No matches were found", addButtons: false)
+                self.showErrorDialogIn(title:"No Results", message:"No matches were found")
             }
             
             self.startSearchBtn.isEnabled = true
@@ -217,6 +282,8 @@ class ViewController: NSViewController {
         startSearchBtn.isEnabled = false
         view.window?.title = "PhotoDupFinder"
         change_nCharsValue(self)
+        DeleteSrcBtn.isEnabled = false
+        hideNonDupChkbox.isEnabled = false
     }
     
     // Called when you select the source folder. Adds list of all filenames into
@@ -226,26 +293,29 @@ class ViewController: NSViewController {
 
     var selectSrcFolder: URL? {
         didSet {
-            if let selectFromFolder = selectSrcFolder {
-                DispatchQueue.main.async { [unowned self] in
-                    self.srcFileList = self.getFolderContents(folder: selectFromFolder)
-                    self.selectedItem = nil
-                    self.tableView.reloadData()
-                    self.tableView.scrollRowToVisible(0)
-                    self.view.window?.title = selectFromFolder.path
-                    self.selectFromLbl.stringValue = selectFromFolder.path
-                    
-                    if (self.searchFromLbl.stringValue.isEmpty) {
-                        self.startSearchBtn.isEnabled = false
+            DispatchQueue.main.async { [unowned self] in
 
-                    } else {
-                        self.startSearchBtn.isEnabled = true
+                if let selectFromFolder = self.selectSrcFolder {
+                    DispatchQueue.main.async { [unowned self] in
+                        self.srcFileList = self.getFolderContents(folder: selectFromFolder)
+                        self.selectedItem = nil
+                        self.tableView.reloadData()
+                        self.tableView.scrollRowToVisible(0)
+                        self.view.window?.title = selectFromFolder.path
+                        self.selectFromLbl.stringValue = selectFromFolder.path
+                        
+                        if (self.searchFromLbl.stringValue.isEmpty) {
+                            self.startSearchBtn.isEnabled = false
+
+                        } else {
+                            self.startSearchBtn.isEnabled = true
+                        }
                     }
                 }
+    //            else {
+    //                view.window?.title = "FileSpy"
+    //            }
             }
-//            else {
-//                view.window?.title = "FileSpy"
-//            }
         }
     }
     
@@ -254,22 +324,25 @@ class ViewController: NSViewController {
     // Enables the search button as long as the search from folder has also been selected.
     var selectDstFolder: URL? {
         didSet {
-            if let selectSearchFolder = selectDstFolder {
-                matchingSelectedItem = nil
-                //self.matchingFilesTableView.reloadData()
-                //self.matchingFilesTableView.scrollRowToVisible(0)
-                searchFromLbl.stringValue = selectSearchFolder.path
-                
-                if (selectFromLbl.stringValue.isEmpty) {
-                    startSearchBtn.isEnabled = false
+            DispatchQueue.main.async { [unowned self] in
+
+                if let selectSearchFolder = self.selectDstFolder {
+                    self.matchingSelectedItem = nil
+                    //self.matchingFilesTableView.reloadData()
+                    //self.matchingFilesTableView.scrollRowToVisible(0)
+                    self.searchFromLbl.stringValue = selectSearchFolder.path
                     
-                } else {
-                    startSearchBtn.isEnabled = true
+                    if (self.selectFromLbl.stringValue.isEmpty) {
+                        self.startSearchBtn.isEnabled = false
+                        
+                    } else {
+                        self.startSearchBtn.isEnabled = true
+                    }
                 }
+    //            else {
+    //                view.window?.title = "FileSpy"
+    //            }
             }
-//            else {
-//                view.window?.title = "FileSpy"
-//            }
         }
     }
     
@@ -280,32 +353,27 @@ class ViewController: NSViewController {
     var selectedItem: URL? {
         didSet {
             //NSLog("entering didSet for selectedItem")
-            infoTextView.string = ""
-            
-            guard let selectedUrl = selectedItem else {
-                return
-            }
             
 
                 
-
-                //srcImageView.setImageWith(selectedUrl)
-
-                
-                DispatchQueue.main.async { [unowned self] in
-                    //highlightInMatchingTable(file: selectedUrl)
-                    let infoString = self.infoAbout(url: selectedUrl)
-                    if !infoString.isEmpty {
-                        let formattedText = self.formatInfoText(infoString)
-                        self.infoTextView.textStorage?.setAttributedString(formattedText)
-                    self.srcImageView.setImageWith(selectedUrl)
-                    self.matchingFileList.removeAll()
-                    self.matchingFileList.append(contentsOf: self.getMatchingFileList(file: selectedUrl))
-                    //self.matchingFileList = getMatchingFileList(file: selectedUrl)
-                    self.matchingFilesTableView.reloadData()
+            DispatchQueue.main.async { [unowned self] in
+                guard let selectedUrl = self.selectedItem else {
+                    return
                 }
-                
+                self.infoTextView.string = ""
 
+                //highlightInMatchingTable(file: selectedUrl)
+                let infoString = self.infoAbout(url: selectedUrl)
+                if !infoString.isEmpty {
+                    let formattedText = self.formatInfoText(infoString)
+                    self.infoTextView.textStorage?.setAttributedString(formattedText)
+                }
+                self.DeleteSrcBtn.isEnabled = true
+                self.srcImageView.setImageWith(selectedUrl)
+                self.matchingFileList.removeAll()
+                self.matchingFileList.append(contentsOf: self.getMatchingFileList(file: selectedUrl))
+                //self.matchingFileList = getMatchingFileList(file: selectedUrl)
+                self.matchingFilesTableView.reloadData()
             }
         }
     }
@@ -317,19 +385,23 @@ class ViewController: NSViewController {
     // the image.
     var matchingSelectedItem: URL? {
         didSet {
-            infoTextView.string = ""
             //NSLog("entering didSet for matchingSelectedItem")
 
-            guard let selectedUrl = matchingSelectedItem else {
-                return
-            }
+
             DispatchQueue.main.async { [unowned self] in
+                guard let selectedUrl = self.matchingSelectedItem else {
+                    return
+                }
+                self.infoTextView.string = ""
+
                 let infoString = self.infoAbout(url: selectedUrl)
                 if !infoString.isEmpty {
                     let formattedText = self.formatInfoText(infoString)
                     self.infoTextView.textStorage?.setAttributedString(formattedText)
-                    self.srcImageView.setImageWith(selectedUrl)
                 }
+                
+                //self.DeleteSrcBtn.isEnabled = false
+                self.srcImageView.setImageWith(selectedUrl)
             }
         }
     }
@@ -360,7 +432,7 @@ extension ViewController {
             let urls = contents
                 .filter { return showInvisibles ? true : $0.characters.first != "." }
                 .map { return folder.appendingPathComponent($0) }
-            NSLog("contentsOf is returning \(urls.count) items")
+            //NSLog("contentsOf is returning \(urls.count) items")
             return urls
         } catch {
             return []
@@ -444,6 +516,7 @@ extension ViewController {
     //      tableView.reloadData()
     //    }
     //  }
+    
     
     @IBAction func tableViewDoubleClicked(_ sender: Any) {
         NSLog("entering tableViewDoubleClicked; not finished to work with both tables!")
