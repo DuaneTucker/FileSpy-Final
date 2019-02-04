@@ -52,7 +52,6 @@ class ViewController: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         
         selectFromLbl.stringValue = ""
         searchFromLbl.stringValue = ""
@@ -101,19 +100,26 @@ class ViewController: NSViewController {
     // Enables the search button as long as the destination folder has also been selected.
     var selectSrcFolder: URL? {
         didSet {
-            if let selectFromFolder = self.selectSrcFolder {
-                self.srcFileList = fileManager.getFolderContents(folder: selectFromFolder)
+            if let selectedFolder = self.selectSrcFolder {
+                self.fileManager.fillSourceList(folder:
+                    selectedFolder, completion: { (files: [URL]) in
+                        self.srcFileList = files
+                        self.tableView.reloadData()
+                        self.tableView.scrollRowToVisible(0)
+
+                })
+                
                 selectedItem = nil
-                self.tableView.reloadData()
-                self.tableView.scrollRowToVisible(0)
-                self.view.window?.title = selectFromFolder.path
-                self.selectFromLbl.stringValue = selectFromFolder.path
+                self.view.window?.title = selectedFolder.path
+                self.selectFromLbl.stringValue = selectedFolder.path
                 
                 if (self.searchFromLbl.stringValue.isEmpty) {
                     self.startSearchBtn.isEnabled = false
                 } else {
                     self.startSearchBtn.isEnabled = true
                 }
+                
+                hideNonDupChkbox.isEnabled = true
             }
         }
     }
@@ -125,8 +131,6 @@ class ViewController: NSViewController {
         didSet {
             if let selectSearchFolder = selectDstFolder {
                 matchingSelectedItem = nil
-                //self.matchingFilesTableView.reloadData()
-                //self.matchingFilesTableView.scrollRowToVisible(0)
                 self.searchFromLbl.stringValue = selectSearchFolder.path
                 
                 if (self.selectFromLbl.stringValue.isEmpty) {
@@ -150,23 +154,22 @@ class ViewController: NSViewController {
             guard let selectedUrl = selectedItem else {
                 return
             }
+            matchingFileList.removeAll()
+            self.matchingFilesTableView.reloadData()
+
+            fileManager.getMatchingFileList(file: selectedUrl, completion: { (files: [URL]) -> Void in
+                self.matchingFileList.append(contentsOf: files)
+                self.matchingFilesTableView.reloadData()
+            })
+            
             infoTextView.string = ""
             
-            //highlightInMatchingTable(file: selectedUrl)
-            
-            let infoString = fileManager.infoAbout(url: selectedUrl)
-            if let formattedText = infoString {
-                infoTextView.textStorage?.setAttributedString(formattedText)
-            } else {
-                print("Unable to get file info for \(selectedUrl)")
-            }
+            displayFileInfo(theUrl: selectedUrl)
             
             DeleteSrcBtn.isEnabled = true
-            srcImageView.setImageWith(selectedUrl)
-            matchingFileList.removeAll()
-            matchingFileList.append(contentsOf: fileManager.getMatchingFileList(file: selectedUrl))
-            //self.matchingFileList = getMatchingFileList(file: selectedUrl)
-            matchingFilesTableView.reloadData()
+            //DispatchQueue.global(qos: .userInteractive).async {
+                self.srcImageView.setImageWith(selectedUrl)
+            //}
         }
     }
     
@@ -181,15 +184,11 @@ class ViewController: NSViewController {
             guard let selectedUrl = matchingSelectedItem else {
                 return
             }
+            
             infoTextView.string = ""
             
-            let infoString = fileManager.infoAbout(url: selectedUrl)
-            if let infoString = infoString {
-                infoTextView.textStorage?.setAttributedString(infoString)
-            } else {
-                print ("couldn't get info string for \(selectedUrl)")
-            }
-            
+            displayFileInfo(theUrl: selectedUrl)
+
             //self.DeleteSrcBtn.isEnabled = false
             self.srcImageView.setImageWith(selectedUrl)
         }
@@ -207,39 +206,6 @@ class ViewController: NSViewController {
         super.viewWillDisappear()
     }
 }
-
- 
-    
-    // This function is called as the first step of processing the Search button click.
-    // The recursion checkbox is used to determine if subdirectories should be explored.
-    //    func fillInternalMatchingList () {
-    //        if let selectSearchFolder = selectDstFolder {
-    //            // Start with an empty destination list.
-    //            internalDestFileList.removeAll()
-    //
-    //            if (recurseCkbx.state == NSButton.StateValue.on) {
-    //                searchFolder(folder: selectSearchFolder)
-    //            } else {  // do not recurse; ignore subfolders
-    //                let searchFolderContents: [URL] = getFolderContents(folder: selectSearchFolder)
-    //                for fileUrl:URL in searchFolderContents {
-    //                    if (isMatchingSrcFileList(file: fileUrl)) {
-    //                        internalDestFileList.append(fileUrl)
-    //                    }
-    //                }
-    //            }
-    //            DispatchQueue.main.async { [unowned self] in
-    //                let numMatching = self.internalDestFileList.count
-    //                self.filesMatchingSearchLbl.stringValue = "\(numMatching) matching items located"
-    //            }
-    //        } else {
-    //            DispatchQueue.main.async { [unowned self] in
-    //                self.filesMatchingSearchLbl.stringValue = ""
-    //            }
-    //            showErrorDialogIn(title:"Bad Destination", message:"Invalid destination search folder")
-    //        }
-    //    }
-
-
 
 
 // MARK: - NSTableViewDataSource
@@ -272,13 +238,23 @@ extension ViewController: NSTableViewDelegate {
             let item = srcFileList[row]
             
             let fileIcon = NSWorkspace.shared.icon(forFile: item.path)
-            
+
             if let cell = tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier("FileCell"), owner: nil)
                 as? NSTableCellView {
                 cell.textField?.stringValue = item.lastPathComponent
-                //cell.textField?.stringValue = item.relativePath
-                
                 cell.imageView?.image = fileIcon
+
+                // this works, but it's slow as hell as it loads each large image
+//                let img = NSImage(contentsOf: item)
+//                let imgRep = NSImageRep.init(contentsOf: item)
+//                if let myImage = imgRep {
+//                    img!.addRepresentation(imgRep!)
+//                    cell.imageView?.image = img
+//
+//                } else {
+//                    cell.imageView?.image = fileIcon
+//                }
+
                 return cell
             }
         }
@@ -305,7 +281,6 @@ extension ViewController: NSTableViewDelegate {
     
     //
     func tableViewSelectionDidChange(_ notification: Notification) {
-        //DispatchQueue.main.async { [unowned self] in
         let table = notification.object as! NSTableView
         
         if (table == self.tableView) {
@@ -315,7 +290,6 @@ extension ViewController: NSTableViewDelegate {
             }
             
             selectedItem = self.srcFileList[self.tableView.selectedRow]
-            //self.matchingFilesTableView.scrollRowToVisible(0)
         }
         else if (table == self.matchingFilesTableView) {
             if self.matchingFilesTableView.selectedRow < 0 {
@@ -325,7 +299,16 @@ extension ViewController: NSTableViewDelegate {
             
             self.matchingSelectedItem = matchingFileList[self.matchingFilesTableView.selectedRow]
         }
-        //}
+    }
+    
+    func displayFileInfo(theUrl: URL) {
+        fileManager.infoAbout(url: theUrl, completion: { (retStr: NSAttributedString?) -> Void in
+            if let infoString = retStr {
+                self.infoTextView.textStorage?.setAttributedString(infoString)
+            } else {
+                print ("couldn't get info string for \(theUrl)")
+            }
+        })
     }
 }
 

@@ -28,12 +28,12 @@ extension ViewController {
         a.beginSheetModal(for: self.view.window!, completionHandler: { (modalResponse: NSApplication.ModalResponse) -> Void in
             if(modalResponse == NSApplication.ModalResponse.alertFirstButtonReturn){
                 DispatchQueue.global(qos: .background).async {
-                    let fileManager = FileManager.default
+                    let fileMgr = FileManager.default
                     do {
                         //try fileManager.removeItem(at: selectedUrl)
-                        try fileManager.trashItem(at: selectedUrl, resultingItemURL: nil)
+                        try fileMgr.trashItem(at: selectedUrl, resultingItemURL: nil)
 
-                        DispatchQueue.main.async { [unowned self] in
+                        //DispatchQueue.main.async { [unowned self] in
                             // now remove the file from the table.
                             var index = 0;
                             for fileUrl:URL in self.srcFileList {
@@ -46,7 +46,7 @@ extension ViewController {
                             self.selectedItem = nil
                             self.tableView.reloadData()
                             self.DeleteSrcBtn.isEnabled = false
-                        }
+                        //}
                     }
                     catch let error as NSError {
                         print("Ooops! Something went wrong: \(error)")
@@ -77,6 +77,7 @@ extension ViewController {
                         print("no results found")
                         self.matchingFileList.removeAll()
                         self.matchingFilesTableView.reloadData()
+                        self.filesMatchingSearchLbl.stringValue = "0 matching items found"
                         self.showErrorDialogIn(title:"No Results", message:"No matches were found")
                     }
                     self.startSearchBtn.isEnabled = true
@@ -113,11 +114,25 @@ extension ViewController {
     }
 
     @IBAction func hideNonDupes(_ sender: Any) {
-//        if (recurseCkbx.state == NSButton.StateValue.on) {
-//            fileManager.recurseDirs = true
-//        } else {
-//            fileManager.recurseDirs = false
-//        }
+        if (hideNonDupChkbox.state == NSButton.StateValue.on) {
+//            var newList: [URL] = []
+//            selectedItem = nil
+//
+//            for fileUrl:URL in self.srcFileList {
+//                if (fileManager.getMatchingFileList(file: fileUrl).count > 0) {
+//                    newList.append(fileUrl)
+//                }
+//            }
+//            self.srcFileList.removeAll()
+//            self.srcFileList = newList
+//            self.tableView.reloadData()
+        } else {
+//            selectedItem = nil
+//            self.srcFileList.removeAll()
+//
+//            self.srcFileList.append(contentsOf: SequencefileManager.srcFileList)
+//            self.tableView.reloadData()
+       }
     }
 
     @IBAction func recurseCkbxChanged(_ sender: Any) {
@@ -127,6 +142,20 @@ extension ViewController {
         } else {
             fileManager.recurseDirs = false
             print("recurseDirs turned off")
+        }
+    }
+
+    @IBAction func selectSrcFolderClicked(_ sender: Any) {
+        guard let window = view.window else { return }
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        
+        panel.beginSheetModal(for: window) { (result) in
+            if result.rawValue == NSFileHandlingPanelOKButton {
+                self.selectSrcFolder = panel.urls[0]
+            }
         }
     }
     
@@ -144,27 +173,6 @@ extension ViewController {
         }
     }
 
-    @IBAction func selectSrcFolderClicked(_ sender: Any) {
-        guard let window = view.window else { return }
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        
-        panel.beginSheetModal(for: window) { (result) in
-            if result.rawValue == NSFileHandlingPanelOKButton {
-                self.selectSrcFolder = panel.urls[0]
-                if let selectSrcFolder = self.selectSrcFolder {
-                    self.fileManager.fillSourceList(folder:
-                        selectSrcFolder, completion: { (files: [URL]) in
-                            self.srcFileList = files
-                            self.tableView.reloadData()
-                    })
-                }
-            }
-        }
-    }
-
     @IBAction func tableViewDoubleClicked(_ sender: Any) {
         print("entering tableViewDoubleClicked; not finished to work with both tables!")
         if tableView.selectedRow < 0 { return }
@@ -176,19 +184,6 @@ extension ViewController {
     }
 
     
-    //  @IBAction func toggleShowInvisibles(_ sender: NSButton) {
-    //    showInvisibles = (sender.state == NSControl.StateValue.on)
-    //    if let selectFromFolder = selectFromFolder {
-    //      filesList = contentsOf(folder: selectFromFolder)
-    //      selectedItem = nil
-    //      tableView.reloadData()
-    //    }
-    //  }
-    
-    //  @IBAction func moveUpClicked(_ sender: Any) {
-    //    if selectFromFolder?.path == "/" { return }
-    //    //selectFromFolder = selectFromFolder?.deletingLastPathComponent()
-    //  }
 
     //  @IBAction func saveInfoClicked(_ sender: Any) {
     //    guard let window = view.window else { return }

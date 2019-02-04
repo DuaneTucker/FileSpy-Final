@@ -25,23 +25,6 @@ class PhotoFileManager {
     init () {
     }
     
-    // This function is called to obtain and return a list of URLs representing
-    // the files within the specified folder name.
-    func getFolderContents(folder: URL) -> [URL] {
-        let fileManager = FileManager.default
-        do {
-            let contents = try fileManager.contentsOfDirectory(atPath: folder.path)
-            let urls = contents
-                .filter { return showInvisibles ? true : $0.characters.first != "." }
-                .map { return folder.appendingPathComponent($0) }
-            //print("contentsOf is returning \(urls.count) items")
-            return urls
-        } catch {
-            return []
-        }
-    }
-    
-    
     // This function is called when the user clicks the Search button
     func startSearch(folder: URL, completion: @escaping ([URL]) -> ()) {
         // Start with an empty destination list.
@@ -59,12 +42,10 @@ class PhotoFileManager {
         // done with masterlist; empty it to preserve memory
         self.masterDestFileList.removeAll()
 
-
         DispatchQueue.main.async {
             completion(self.internalDestFileList)
         }
     }
-    
     
     // This function is called to load the source folder
     // list with all file URLs in the source folder
@@ -80,8 +61,78 @@ class PhotoFileManager {
     }
     
 
+
+    // Given a file that was selected in the left table, return back a list
+    // of file urls from the internal matching list. The returned list will then
+    // get displayed in the right table.
+    func getMatchingFileList(file: URL, completion: @escaping ([URL]) -> ())  {
+        var fileList: [URL] = []
+        let src = file.lastPathComponent
+        
+        DispatchQueue.global(qos: .userInteractive).async {
+            for destFileURL:URL in self.internalDestFileList {
+                let dst = destFileURL.lastPathComponent
+                //print("commparing \(src) to \(dst)")
+                
+                //NOTE: I think this comparison should only be done in the fillInternalMatchingList function
+                // That way, the only files in the internal list would have already been verified to match.
+                // This function could simply compare the filename components to determine the list to return.
+                if (self.compareFiles(src: src, dst: dst)) {
+                    fileList.append(destFileURL)
+                }
+            }
+            
+            DispatchQueue.main.async {
+                completion(fileList)
+            }
+            
+        }
+    }
+    
+    func infoAbout(url: URL, completion: @escaping (NSAttributedString?) -> ())  {
+        let fileMgr = FileManager.default
+        var retStr: NSAttributedString? = nil
+        
+        do {
+            let attributes = try fileMgr.attributesOfItem(atPath: url.path)
+            var report: [String] = ["\(url.path)", ""]
+            
+            for (key, value) in attributes {
+                // ignore NSFileExtendedAttributes as it is a messy dictionary
+                if key.rawValue == "NSFileExtendedAttributes" { continue }
+                report.append("\(key.rawValue):\t \(value)")
+            }
+            let infoString = report.joined(separator: "\n")
+            if !infoString.isEmpty {
+                retStr = formatInfoText(infoString)
+            }
+        } catch {
+            retStr = nil
+        }
+        
+        completion(retStr)
+    }
+    
+    // This function is called to obtain and return a list of URLs representing
+    // the files within the specified folder name.
+    fileprivate func getFolderContents(folder: URL) -> [URL] {
+        let fileManager = FileManager.default
+        do {
+            let contents = try fileManager.contentsOfDirectory(atPath: folder.path)
+            //print ("first char = \(folder.path.prefix(1))")
+            //    .filter { return showInvisibles ? true : $0.characters.first != "." }
+            
+            let urls = contents
+                .filter { return showInvisibles ? true : $0.prefix(1) != "." }
+                .map { return folder.appendingPathComponent($0) }
+            return urls
+        } catch {
+            return []
+        }
+    }
+    
     // The recursion checkbox is used to determine if subdirectories should be explored.
-    func fillMasterDestList(folder: URL) {
+    fileprivate func fillMasterDestList(folder: URL) {
         // Start with an empty destination list.
         masterDestFileList.removeAll()
         
@@ -95,31 +146,7 @@ class PhotoFileManager {
         }
     }
     
-//    func fillInternalMatchingList (folder: URL, completion: @escaping () -> ()) {
-//        DispatchQueue.global(qos: .userInteractive).async {
-//
-//            self.fillMasterDestList(folder: folder)
-//
-//            // Start with an empty destination list.
-//            self.internalDestFileList.removeAll()
-//
-//            for fileUrl:URL in self.masterDestFileList {
-//                if (self.isMatchingSrcFileList(file: fileUrl, srchList: [URL])) {
-//                    self.internalDestFileList.append(fileUrl)
-//                }
-//            }
-//
-//            self.masterDestFileList.removeAll()
-//            //print("masterDestFileList now has \(masterDestFileList.count) entries")
-//
-//
-//            DispatchQueue.main.async {
-//                completion()
-//            }
-//        }
-//    }
-    
-    func addFolderContents(folder: URL) {
+    fileprivate func addFolderContents(folder: URL) {
         var files: [URL] = getFolderContents(folder: folder)
         
         while (files.count > 0) {
@@ -127,47 +154,20 @@ class PhotoFileManager {
                 // we've found a directory. Get it's contents and add them to the
                 // end of master list; they'll be searched later.
                 addFolderContents(folder: files[0])
-                
-                //                files.append(contentsOf: getMatchingSrcFileList(folderNm: files[0]))
                 files.remove(at: 0) // Remove this directory from the search list
             } else {
-                // Not a directory. If the file matches one in the src file list, add it
-                // to the dest list.
-                //if (isMatchingSrcFileList(file: files[0])) {
-                //self.internalDestFileList.append(files[0])
+                // Not a directory so add it to the dest list.
                 masterDestFileList.append(files[0])
-                //}
+                // Remove this file from the list of remaining files/dirs to check
                 files.remove(at: 0)
             }
         }
     }
-        
-    // Given a file that was selected in the left table, return back a list
-    // of file urls from the internal matching list. The returned list will then
-    // get displayed in the right table.
-    func getMatchingFileList(file: URL)  -> [URL] {
-        var fileList: [URL] = []
-        
-        let src = file.lastPathComponent
-        
-        for destFileURL:URL in self.internalDestFileList {
-            let dst = destFileURL.lastPathComponent
-            //print("commparing \(src) to \(dst)")
-            
-            //NOTE: I think this comparison should only be done in the fillInternalMatchingList function
-            // That way, the only files in the internal list would have already been verified to match.
-            // This function could simply compare the filename components to determine the list to return.
-            if (compareFiles(src: src, dst: dst)) {
-                fileList.append(destFileURL)
-            }
-        }
-        
-        return fileList
-    }
+    
     
     // Given a folder name found while searching through search folders, return back a list
     // of file urls from the folder that match files in the source foler.
-    func getMatchingSrcFileList(folderNm: URL) -> [URL] {
+    fileprivate func getMatchingSrcFileList(folderNm: URL) -> [URL] {
         var fileList: [URL] = []
         let folderContents: [URL] = getFolderContents(folder: folderNm)
         
@@ -184,7 +184,7 @@ class PhotoFileManager {
     
     // Given a folder name found while searching through search folders, return back a list
     // of file urls from the folder that match files in the source foler.
-    func isMatchingSrcFileList(file: URL)  -> Bool {
+    fileprivate func isMatchingSrcFileList(file: URL)  -> Bool {
         var matches: Bool = false
         let dst = file.lastPathComponent
         let dstPath = file.deletingLastPathComponent()
@@ -208,10 +208,8 @@ class PhotoFileManager {
         return matches
     }
     
-    func compareFiles(src: String, dst: String) -> Bool {
+    fileprivate func compareFiles(src: String, dst: String) -> Bool {
         var ret: Bool = false
-        //var srcStr: String
-        //var dstStr: String
         
         if (nCharsEnabled) {
             // test only n number of characters in the name
@@ -242,51 +240,29 @@ class PhotoFileManager {
         return ret
     }
     
-    func infoAbout(url: URL) -> NSAttributedString? {
-        let fileMgr = FileManager.default
-        
-        do {
-            let attributes = try fileMgr.attributesOfItem(atPath: url.path)
-            var report: [String] = ["\(url.path)", ""]
-            
-            for (key, value) in attributes {
-                // ignore NSFileExtendedAttributes as it is a messy dictionary
-                if key.rawValue == "NSFileExtendedAttributes" { continue }
-                report.append("\(key.rawValue):\t \(value)")
-            }
-            let infoString = report.joined(separator: "\n")
-            if !infoString.isEmpty {
-                let formattedText = formatInfoText(infoString)
-                return formattedText
-            } else {
-//                return ("Information unknown for \(url.path)")
-                return nil
-            }
-        } catch {
-//            return "No information available for \(url.path)"
-            return nil
-        }
-    }
-    
-    func formatInfoText(_ text: String) -> NSAttributedString {
+    fileprivate func formatInfoText(_ text: String) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle.default.mutableCopy() as? NSMutableParagraphStyle
         paragraphStyle?.minimumLineHeight = 24
         paragraphStyle?.alignment = .left
         paragraphStyle?.tabStops = [ NSTextTab(type: .leftTabStopType, location: 240) ]
         
-        let textAttributes: [String: Any] = [
-            convertFromNSAttributedStringKey(NSAttributedString.Key.font): NSFont.systemFont(ofSize: 14),
-            convertFromNSAttributedStringKey(NSAttributedString.Key.paragraphStyle): paragraphStyle ?? NSParagraphStyle.default
-        ]
+//        let textAttributes: [String: Any] = [
+//            convertFromNSAttributedStringKey(NSAttributedString.Key.font): NSFont.systemFont(ofSize: 14),
+//            convertFromNSAttributedStringKey(NSAttributedString.Key.paragraphStyle): paragraphStyle ?? NSParagraphStyle.default
+//        ]
         
+        let textAttributes: [String: Any] = [
+            NSAttributedString.Key.font.rawValue: NSFont.systemFont(ofSize: 14),
+            NSAttributedString.Key.paragraphStyle.rawValue: paragraphStyle ?? NSParagraphStyle.default
+        ]
         let formattedText = NSAttributedString(string: text, attributes: convertToOptionalNSAttributedStringKeyDictionary(textAttributes))
         return formattedText
     }
     
     // Helper function inserted by Swift 4.2 migrator.
-    func convertFromNSAttributedStringKey(_ input: NSAttributedString.Key) -> String {
-        return input.rawValue
-    }
+//    func convertFromNSAttributedStringKey(_ input: NSAttributedString.Key) -> String {
+//        return input.rawValue
+//    }
     
     // Helper function inserted by Swift 4.2 migrator.
     func convertToOptionalNSAttributedStringKeyDictionary(_ input: [String: Any]?) -> [NSAttributedString.Key: Any]? {
