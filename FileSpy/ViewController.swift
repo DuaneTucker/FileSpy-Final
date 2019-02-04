@@ -15,306 +15,105 @@ class ViewController: NSViewController {
     @IBOutlet weak var tableView: NSTableView!
     @IBOutlet weak var infoTextView: NSTextView!
     @IBOutlet weak var matchingFilesTableView: NSTableView!
+    @IBOutlet weak var srcImageView: IKImageView!
+
     @IBOutlet weak var selectFromLbl: NSTextField!
     @IBOutlet weak var searchFromLbl: NSTextField!
     @IBOutlet weak var filesMatchingSearchLbl: NSTextField!
-    @IBOutlet weak var startSearchBtn: NSButton!
-    @IBOutlet weak var ignoreCaseCheckbox: NSButton!
-    
-    @IBOutlet weak var srcImageView: IKImageView!
-    
     @IBOutlet weak var compare_nCharsLable: NSTextField!
+
+    @IBOutlet weak var startSearchBtn: NSButton!
     @IBOutlet weak var DeleteSrcBtn: NSButton!
+    
     @IBOutlet weak var hideNonDupChkbox: NSButton!
     @IBOutlet weak var nCharsSlider: NSSlider!
     @IBOutlet weak var Enable_n_chars: NSButton!
     @IBOutlet weak var recurseCkbx: NSButton!
+    @IBOutlet weak var ignoreCaseCheckbox: NSButton!
+
     // MARK: - Properties
-    
     var srcFileList: [URL] = []
-    var internalDestFileList: [URL] = []
     var matchingFileList: [URL] = []
-    var showInvisibles = false
-    
-    @IBAction func hideNonDupes(_ sender: Any) {
-        
-    }
-    @IBAction func deleteSrcFile(_ sender: Any) {
-
-        DispatchQueue.main.async { [unowned self] in
-            guard let selectedUrl = self.selectedItem else {
-                return
-            }
-            let a: NSAlert = NSAlert()
-            
-            a.messageText = "Delete File?"
-            a.informativeText = "Are you sure you want to delete \(selectedUrl)?"
-            a.alertStyle = NSAlert.Style.warning
-            a.addButton(withTitle: "Delete")
-            a.addButton(withTitle: "Cancel")
-            
-            a.beginSheetModal(for: self.view.window!, completionHandler: { (modalResponse: NSApplication.ModalResponse) -> Void in
-                if(modalResponse == NSApplication.ModalResponse.alertFirstButtonReturn){
-                    let fileManager = FileManager.default
-                    do {
-                        try fileManager.removeItem(at: selectedUrl)
-                        //DispatchQueue.main.async { [unowned self] in
-                            var index = 0;
-                            for fileUrl:URL in self.srcFileList {
-                                if (fileUrl == selectedUrl) {
-                                    self.srcFileList.remove(at: index)
-                                    break
-                                }
-                                index += 1
-                            }
-                            self.selectedItem = nil
-                            self.tableView.reloadData()
-                            self.DeleteSrcBtn.isEnabled = false
-                        //}
-                        
-                    }
-                    catch let error as NSError {
-                        print("Ooops! Something went wrong: \(error)")
-                        self.showErrorDialogIn(title:"Major Malfunction", message:"Error occurred deleting \(selectedUrl)")
-                    }
-                    print("Document deleted")
-                }
-            })
-    //        DispatchQueue.main.async { [unowned self] in
-    //            //highlightInMatchingTable(file: selectedUrl)
-    //        }
-            
-        }
-    }
-    
-    func searchFolder(folder: URL) {
-        var files: [URL] = getFolderContents(folder: folder)
-        
-        while (files.count > 0) {
-            if (files[0].hasDirectoryPath) {
-                // we've found a directory. Get it's contents and add them to the
-                // end of master list; they'll be searched later.
-                searchFolder(folder: files[0])
-
-//                files.append(contentsOf: getMatchingSrcFileList(folderNm: files[0]))
-                files.remove(at: 0) // Remove this directory from the search list
-            } else {
-                // Not a directory. If the file matches one in the src file list, add it
-                // to the dest list.
-                if (isMatchingSrcFileList(file: files[0])) {
-                    self.internalDestFileList.append(files[0])
-                }
-                files.remove(at: 0)
-            }
-        }
-    }
-    // This function is called as the first step of processing the Search button click.
-    // The recursion checkbox is used to determine if subdirectories should be explored.
-    func fillInternalMatchingList () {
-        if let selectSearchFolder = selectDstFolder {
-            // Start with an empty destination list.
-            internalDestFileList.removeAll()
-            
-            if (recurseCkbx.state == NSButton.StateValue.on) {
-                searchFolder(folder: selectSearchFolder)
-            } else {  // do not recurse; ignore subfolders
-                let searchFolderContents: [URL] = getFolderContents(folder: selectSearchFolder)
-                for fileUrl:URL in searchFolderContents {
-                    if (isMatchingSrcFileList(file: fileUrl)) {
-                        internalDestFileList.append(fileUrl)
-                    }
-                }
-            }
-            
-            let numMatching = internalDestFileList.count
-            filesMatchingSearchLbl.stringValue = "\(numMatching) matching items located"
-        } else {
-            filesMatchingSearchLbl.stringValue = ""
-            showErrorDialogIn(title:"Bad Destination", message:"Invalid destination search folder")
-        }
-    }
-    
-    // Given a file that was selected in the left table, return back a list
-    // of file urls from the internal matching list. The returned list will then
-    // get displayed in the right table.
-    func getMatchingFileList(file: URL)  -> [URL] {
-        var fileList: [URL] = []
-
-        let src = file.lastPathComponent
-
-        for destFileURL:URL in self.internalDestFileList {
-            let dst = destFileURL.lastPathComponent
-            //NSLog("commparing \(src) to \(dst)")
-            
-            //NOTE: I think this comparison should only be done in the fillInternalMatchingList function
-            // That way, the only files in the internal list would have already been verified to match.
-            // This function could simply compare the filename components to determine the list to return.
-            if (compareFiles(src: src, dst: dst)) {
-                fileList.append(destFileURL)
-            }
-        }
-        
-        return fileList
-    }
-    
-    // Given a folder name found while searching through search folders, return back a list
-    // of file urls from the folder that match files in the source foler.
-    func getMatchingSrcFileList(folderNm: URL)  -> [URL] {
-        var fileList: [URL] = []
-        let folderContents: [URL] = getFolderContents(folder: folderNm)
-            
-        for destFileURL:URL in folderContents {
-            //NSLog("commparing \(src) to \(dst)")
-            if (isMatchingSrcFileList(file: destFileURL)) {
-                //NSLog("FOUND \(dst)")
-                fileList.append(destFileURL)
-            }
-        }
-        
-        return fileList
-    }
-    
-    // Given a folder name found while searching through search folders, return back a list
-    // of file urls from the folder that match files in the source foler.
-    func isMatchingSrcFileList(file: URL)  -> Bool {
-        var matches: Bool = false
-        let dst = file.lastPathComponent
-
-        for srcFileURL:URL in self.srcFileList {
-            let src = srcFileURL.lastPathComponent
-            let srcPath = srcFileURL.absoluteURL
-            let dstPath = file.absoluteURL
-            
-            // make sure we're not comparing the same file in the same directory
-            if (srcPath != dstPath) {
-                //NSLog("looking up dups for \(src)")
-                
-                if (compareFiles(src: src, dst: dst)) {
-                    //NSLog("FOUND \(dst)")
-                    matches = true
-                    break
-                }
-            }
-        }
-        
-        return matches
-    }
-    
+    let fileManager = PhotoFileManager()
     
     func showErrorDialogIn(title: String, message: String) {
         let a: NSAlert = NSAlert()
         a.messageText = title
         a.informativeText = message
         a.alertStyle = NSAlert.Style.warning
-
+        
         a.beginSheetModal(for: self.view.window!, completionHandler: { (modalResponse: NSApplication.ModalResponse) -> Void in
-//            if(modalResponse == NSApplication.ModalResponse.alertFirstButtonReturn){
-//                print("Document deleted")
-//            }
+            // if(modalResponse == NSApplication.ModalResponse.alertFirstButtonReturn)
+            // {
+            // }
         })
     }
     
-    func compareFiles(src: String, dst: String) -> Bool {
-        var ret: Bool = false
-        
-        if (Enable_n_chars.state == NSButton.StateValue.on) {
-            
-        }
-        if (ignoreCaseCheckbox.state == NSButton.StateValue.on) {
-            //NSLog ("ignoring case")
-            if (src.caseInsensitiveCompare(dst) == .orderedSame){
-                ret = true
-            }
-        } else {
-            //NSLog ("respecting case")
-            if (src == dst) {
-                ret = true
-            }
-        }
-        
-        return ret
-    }
-    
-    @IBAction func change_nCharsValue(_ sender: Any) {
-       let numChars = nCharsSlider.intValue
-        compare_nCharsLable.stringValue = "Compare at most \(numChars) characters"
-    }
-    
-    // This is the main search function, called when the user clicks the Search button
-    @IBAction func startSearch(_ sender: Any) {
-        //var myMatchingFilesList: [URL] = []
-        //let destSrchList: [URL] = self.destFolderFileList
-        NSLog("Starting search for matches")
-        
-        DispatchQueue.main.async { [unowned self] in
-            self.startSearchBtn.isEnabled = false
-
-            self.matchingFileList.removeAll()
-            self.matchingFilesTableView.reloadData()
-
-            NSLog("getting internal list of all available matching files now...")
-            self.fillInternalMatchingList()
-            
-            if (self.internalDestFileList.count > 0) {
-                //self.matchingFileList = myMatchingFilesList
-                //self.matchingFilesTableView.reloadData()
-            } else {
-                NSLog("no results found")
-                //DispatchQueue.main.async { [unowned self] in
-                    self.matchingFileList.removeAll()
-                    self.matchingFilesTableView.reloadData()
-                //}
-                self.showErrorDialogIn(title:"No Results", message:"No matches were found")
-            }
-            
-            self.startSearchBtn.isEnabled = true
-        }
-    }
-    
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-
+        
         selectFromLbl.stringValue = ""
         searchFromLbl.stringValue = ""
         startSearchBtn.isEnabled = false
         view.window?.title = "PhotoDupFinder"
-        change_nCharsValue(self)
         DeleteSrcBtn.isEnabled = false
         hideNonDupChkbox.isEnabled = false
+        nCharsSlider.intValue = 8
+        change_nCharsValue(self)
+
+        // Initialize fileManager object
+        if (Enable_n_chars.state == NSButton.StateValue.on) {
+            fileManager.nCharsEnabled = true
+        } else {
+            fileManager.nCharsEnabled = false
+        }
+        
+        fileManager.nCharsValue = Int(nCharsSlider.intValue)
+        if (Enable_n_chars.state == NSButton.StateValue.on) {
+            fileManager.nCharsEnabled = true
+        } else {
+            fileManager.nCharsEnabled = false
+        }
+        
+//        if (hideNonDupChkbox.state == NSButton.StateValue.on) {
+//            fileManager.hideNonDups = true
+//        } else {
+//            fileManager.hideNonDups = false
+//        }
+        
+        if (recurseCkbx.state == NSButton.StateValue.on) {
+            fileManager.recurseDirs = true
+        } else {
+            fileManager.recurseDirs = false
+        }
+        if (ignoreCaseCheckbox.state == NSButton.StateValue.on) {
+            fileManager.ignoreCase = true
+        } else {
+            fileManager.ignoreCase = false
+        }
     }
     
     // Called when you select the source folder. Adds list of all filenames into
     // the srcFileList array and then forces a redraw of the source folder table
     // at which point you see the files listed.
     // Enables the search button as long as the destination folder has also been selected.
-
     var selectSrcFolder: URL? {
         didSet {
-            DispatchQueue.main.async { [unowned self] in
-
-                if let selectFromFolder = self.selectSrcFolder {
-                    DispatchQueue.main.async { [unowned self] in
-                        self.srcFileList = self.getFolderContents(folder: selectFromFolder)
-                        self.selectedItem = nil
-                        self.tableView.reloadData()
-                        self.tableView.scrollRowToVisible(0)
-                        self.view.window?.title = selectFromFolder.path
-                        self.selectFromLbl.stringValue = selectFromFolder.path
-                        
-                        if (self.searchFromLbl.stringValue.isEmpty) {
-                            self.startSearchBtn.isEnabled = false
-
-                        } else {
-                            self.startSearchBtn.isEnabled = true
-                        }
-                    }
+            if let selectFromFolder = self.selectSrcFolder {
+                self.srcFileList = fileManager.getFolderContents(folder: selectFromFolder)
+                selectedItem = nil
+                self.tableView.reloadData()
+                self.tableView.scrollRowToVisible(0)
+                self.view.window?.title = selectFromFolder.path
+                self.selectFromLbl.stringValue = selectFromFolder.path
+                
+                if (self.searchFromLbl.stringValue.isEmpty) {
+                    self.startSearchBtn.isEnabled = false
+                } else {
+                    self.startSearchBtn.isEnabled = true
                 }
-    //            else {
-    //                view.window?.title = "FileSpy"
-    //            }
             }
         }
     }
@@ -324,24 +123,18 @@ class ViewController: NSViewController {
     // Enables the search button as long as the search from folder has also been selected.
     var selectDstFolder: URL? {
         didSet {
-            DispatchQueue.main.async { [unowned self] in
-
-                if let selectSearchFolder = self.selectDstFolder {
-                    self.matchingSelectedItem = nil
-                    //self.matchingFilesTableView.reloadData()
-                    //self.matchingFilesTableView.scrollRowToVisible(0)
-                    self.searchFromLbl.stringValue = selectSearchFolder.path
+            if let selectSearchFolder = selectDstFolder {
+                matchingSelectedItem = nil
+                //self.matchingFilesTableView.reloadData()
+                //self.matchingFilesTableView.scrollRowToVisible(0)
+                self.searchFromLbl.stringValue = selectSearchFolder.path
+                
+                if (self.selectFromLbl.stringValue.isEmpty) {
+                    self.startSearchBtn.isEnabled = false
                     
-                    if (self.selectFromLbl.stringValue.isEmpty) {
-                        self.startSearchBtn.isEnabled = false
-                        
-                    } else {
-                        self.startSearchBtn.isEnabled = true
-                    }
+                } else {
+                    self.startSearchBtn.isEnabled = true
                 }
-    //            else {
-    //                view.window?.title = "FileSpy"
-    //            }
             }
         }
     }
@@ -352,29 +145,28 @@ class ViewController: NSViewController {
     // the image.
     var selectedItem: URL? {
         didSet {
-            //NSLog("entering didSet for selectedItem")
+            //print("entering didSet for selectedItem")
             
-
-                
-            DispatchQueue.main.async { [unowned self] in
-                guard let selectedUrl = self.selectedItem else {
-                    return
-                }
-                self.infoTextView.string = ""
-
-                //highlightInMatchingTable(file: selectedUrl)
-                let infoString = self.infoAbout(url: selectedUrl)
-                if !infoString.isEmpty {
-                    let formattedText = self.formatInfoText(infoString)
-                    self.infoTextView.textStorage?.setAttributedString(formattedText)
-                }
-                self.DeleteSrcBtn.isEnabled = true
-                self.srcImageView.setImageWith(selectedUrl)
-                self.matchingFileList.removeAll()
-                self.matchingFileList.append(contentsOf: self.getMatchingFileList(file: selectedUrl))
-                //self.matchingFileList = getMatchingFileList(file: selectedUrl)
-                self.matchingFilesTableView.reloadData()
+            guard let selectedUrl = selectedItem else {
+                return
             }
+            infoTextView.string = ""
+            
+            //highlightInMatchingTable(file: selectedUrl)
+            
+            let infoString = fileManager.infoAbout(url: selectedUrl)
+            if let formattedText = infoString {
+                infoTextView.textStorage?.setAttributedString(formattedText)
+            } else {
+                print("Unable to get file info for \(selectedUrl)")
+            }
+            
+            DeleteSrcBtn.isEnabled = true
+            srcImageView.setImageWith(selectedUrl)
+            matchingFileList.removeAll()
+            matchingFileList.append(contentsOf: fileManager.getMatchingFileList(file: selectedUrl))
+            //self.matchingFileList = getMatchingFileList(file: selectedUrl)
+            matchingFilesTableView.reloadData()
         }
     }
     
@@ -385,24 +177,21 @@ class ViewController: NSViewController {
     // the image.
     var matchingSelectedItem: URL? {
         didSet {
-            //NSLog("entering didSet for matchingSelectedItem")
-
-
-            DispatchQueue.main.async { [unowned self] in
-                guard let selectedUrl = self.matchingSelectedItem else {
-                    return
-                }
-                self.infoTextView.string = ""
-
-                let infoString = self.infoAbout(url: selectedUrl)
-                if !infoString.isEmpty {
-                    let formattedText = self.formatInfoText(infoString)
-                    self.infoTextView.textStorage?.setAttributedString(formattedText)
-                }
-                
-                //self.DeleteSrcBtn.isEnabled = false
-                self.srcImageView.setImageWith(selectedUrl)
+            //print("entering didSet for matchingSelectedItem")
+            guard let selectedUrl = matchingSelectedItem else {
+                return
             }
+            infoTextView.string = ""
+            
+            let infoString = fileManager.infoAbout(url: selectedUrl)
+            if let infoString = infoString {
+                infoTextView.textStorage?.setAttributedString(infoString)
+            } else {
+                print ("couldn't get info string for \(selectedUrl)")
+            }
+            
+            //self.DeleteSrcBtn.isEnabled = false
+            self.srcImageView.setImageWith(selectedUrl)
         }
     }
     
@@ -419,147 +208,39 @@ class ViewController: NSViewController {
     }
 }
 
-// MARK: - Getting file or folder information
-
-extension ViewController {
+ 
     
-    // This function is called to obtain and return a list of URLs representing
-    // the files within the specified folder name.
-    func getFolderContents(folder: URL) -> [URL] {
-        let fileManager = FileManager.default
-        do {
-            let contents = try fileManager.contentsOfDirectory(atPath: folder.path)
-            let urls = contents
-                .filter { return showInvisibles ? true : $0.characters.first != "." }
-                .map { return folder.appendingPathComponent($0) }
-            //NSLog("contentsOf is returning \(urls.count) items")
-            return urls
-        } catch {
-            return []
-        }
-    }
-    
-    func infoAbout(url: URL) -> String {
-        let fileManager = FileManager.default
-        
-        do {
-            let attributes = try fileManager.attributesOfItem(atPath: url.path)
-            var report: [String] = ["\(url.path)", ""]
-            
-            for (key, value) in attributes {
-                // ignore NSFileExtendedAttributes as it is a messy dictionary
-                if key.rawValue == "NSFileExtendedAttributes" { continue }
-                report.append("\(key.rawValue):\t \(value)")
-            }
-            return report.joined(separator: "\n")
-        } catch {
-            return "No information available for \(url.path)"
-        }
-    }
-    
-    func formatInfoText(_ text: String) -> NSAttributedString {
-        let paragraphStyle = NSMutableParagraphStyle.default.mutableCopy() as? NSMutableParagraphStyle
-        paragraphStyle?.minimumLineHeight = 24
-        paragraphStyle?.alignment = .left
-        paragraphStyle?.tabStops = [ NSTextTab(type: .leftTabStopType, location: 240) ]
-        
-        let textAttributes: [String: Any] = [
-            convertFromNSAttributedStringKey(NSAttributedString.Key.font): NSFont.systemFont(ofSize: 14),
-            convertFromNSAttributedStringKey(NSAttributedString.Key.paragraphStyle): paragraphStyle ?? NSParagraphStyle.default
-        ]
-        
-        let formattedText = NSAttributedString(string: text, attributes: convertToOptionalNSAttributedStringKeyDictionary(textAttributes))
-        return formattedText
-    }
-    
-    
-}
-
-// MARK: - Actions
-
-extension ViewController {
-    @IBAction func selectSearchFolderClicked(_ sender: Any) {
-        guard let window = view.window else { return }
-        
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        
-        panel.beginSheetModal(for: window) { (result) in
-            if result.rawValue == NSFileHandlingPanelOKButton {
-                self.selectDstFolder = panel.urls[0]
-            }
-        }
-    }
-    
-    @IBAction func selectFolderClicked(_ sender: Any) {
-        guard let window = view.window else { return }
-        
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        
-        panel.beginSheetModal(for: window) { (result) in
-            if result.rawValue == NSFileHandlingPanelOKButton {
-                self.selectSrcFolder = panel.urls[0]
-            }
-        }
-    }
-    
-    //  @IBAction func toggleShowInvisibles(_ sender: NSButton) {
-    //    showInvisibles = (sender.state == NSControl.StateValue.on)
-    //    if let selectFromFolder = selectFromFolder {
-    //      filesList = contentsOf(folder: selectFromFolder)
-    //      selectedItem = nil
-    //      tableView.reloadData()
-    //    }
-    //  }
-    
-    
-    @IBAction func tableViewDoubleClicked(_ sender: Any) {
-        NSLog("entering tableViewDoubleClicked; not finished to work with both tables!")
-        if tableView.selectedRow < 0 { return }
-
-        let selectedItem = srcFileList[tableView.selectedRow]
-        if selectedItem.hasDirectoryPath {
-            selectSrcFolder = selectedItem
-        }
-    }
-    
-    //  @IBAction func moveUpClicked(_ sender: Any) {
-    //    if selectFromFolder?.path == "/" { return }
-    //    //selectFromFolder = selectFromFolder?.deletingLastPathComponent()
-    //  }
-    
-    //  @IBAction func saveInfoClicked(_ sender: Any) {
-    //    guard let window = view.window else { return }
-    //    guard let selectedUrl = selectedItem else { return }
+    // This function is called as the first step of processing the Search button click.
+    // The recursion checkbox is used to determine if subdirectories should be explored.
+    //    func fillInternalMatchingList () {
+    //        if let selectSearchFolder = selectDstFolder {
+    //            // Start with an empty destination list.
+    //            internalDestFileList.removeAll()
     //
-    //    let panel = NSSavePanel()
-    //    panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser
-    //    panel.nameFieldStringValue = selectedUrl
-    //      .deletingPathExtension()
-    //      .appendingPathExtension("fs.txt")
-    //      .lastPathComponent
-    //
-    //    panel.beginSheetModal(for: window) { (result) in
-    //      if result.rawValue == NSFileHandlingPanelOKButton,
-    //        let url = panel.url {
-    //        do {
-    //          let infoAsText = self.infoAbout(url: selectedUrl)
-    //          try infoAsText.write(to: url, atomically: true, encoding: .utf8)
-    //        } catch {
-    //          self.showErrorDialogIn(window: window,
-    //                                 title: "Unable to save file",
-    //                                 message: error.localizedDescription)
+    //            if (recurseCkbx.state == NSButton.StateValue.on) {
+    //                searchFolder(folder: selectSearchFolder)
+    //            } else {  // do not recurse; ignore subfolders
+    //                let searchFolderContents: [URL] = getFolderContents(folder: selectSearchFolder)
+    //                for fileUrl:URL in searchFolderContents {
+    //                    if (isMatchingSrcFileList(file: fileUrl)) {
+    //                        internalDestFileList.append(fileUrl)
+    //                    }
+    //                }
+    //            }
+    //            DispatchQueue.main.async { [unowned self] in
+    //                let numMatching = self.internalDestFileList.count
+    //                self.filesMatchingSearchLbl.stringValue = "\(numMatching) matching items located"
+    //            }
+    //        } else {
+    //            DispatchQueue.main.async { [unowned self] in
+    //                self.filesMatchingSearchLbl.stringValue = ""
+    //            }
+    //            showErrorDialogIn(title:"Bad Destination", message:"Invalid destination search folder")
     //        }
-    //      }
     //    }
-    //  }
-    
-}
+
+
+
 
 // MARK: - NSTableViewDataSource
 
@@ -582,21 +263,21 @@ extension ViewController: NSTableViewDataSource {
 // MARK: - NSTableViewDelegate
 // Here is where files are added to the internal arrays
 extension ViewController: NSTableViewDelegate {
-  
+    
     // original code - works for left table
     func tableView(_ tableView: NSTableView, viewFor
         tableColumn: NSTableColumn?, row: Int) -> NSView? {
         
         if tableView == self.tableView {
             let item = srcFileList[row]
-
+            
             let fileIcon = NSWorkspace.shared.icon(forFile: item.path)
-
-            if let cell = tableView.makeView(withIdentifier: convertToNSUserInterfaceItemIdentifier("FileCell"), owner: nil)
+            
+            if let cell = tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier("FileCell"), owner: nil)
                 as? NSTableCellView {
                 cell.textField?.stringValue = item.lastPathComponent
                 //cell.textField?.stringValue = item.relativePath
-
+                
                 cell.imageView?.image = fileIcon
                 return cell
             }
@@ -606,45 +287,46 @@ extension ViewController: NSTableViewDelegate {
             
             let fileIcon = NSWorkspace.shared.icon(forFile: item.path)
             
-            if let cell = matchingFilesTableView.makeView(withIdentifier: convertToNSUserInterfaceItemIdentifier("FileCell"), owner: nil)
+            if let cell = matchingFilesTableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier("FileCell"), owner: nil)
                 as? NSTableCellView {
                 cell.textField?.stringValue = item.lastPathComponent
                 //cell.textField?.stringValue = item.relativePath
-
+                
                 cell.imageView?.image = fileIcon
                 return cell
             }
             
         }
         else {
-            NSLog("Hey, this isn't the right table")
+            print("Hey, this isn't the right table")
         }
         return nil
     }
     
     //
     func tableViewSelectionDidChange(_ notification: Notification) {
+        //DispatchQueue.main.async { [unowned self] in
         let table = notification.object as! NSTableView
-
+        
         if (table == self.tableView) {
-            if tableView.selectedRow < 0 {
+            if self.tableView.selectedRow < 0 {
                 selectedItem = nil
                 return
             }
             
-            selectedItem = srcFileList[tableView.selectedRow]
+            selectedItem = self.srcFileList[self.tableView.selectedRow]
             //self.matchingFilesTableView.scrollRowToVisible(0)
         }
         else if (table == self.matchingFilesTableView) {
-            if matchingFilesTableView.selectedRow < 0 {
+            if self.matchingFilesTableView.selectedRow < 0 {
                 matchingSelectedItem = nil
                 return
             }
             
-            matchingSelectedItem = matchingFileList[matchingFilesTableView.selectedRow]
+            self.matchingSelectedItem = matchingFileList[self.matchingFilesTableView.selectedRow]
         }
+        //}
     }
-    
 }
 
 // MARK: - Save & Restore previous selection
@@ -721,18 +403,4 @@ extension ViewController: NSTableViewDelegate {
 //
 //}
 
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertFromNSAttributedStringKey(_ input: NSAttributedString.Key) -> String {
-    return input.rawValue
-}
 
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertToOptionalNSAttributedStringKeyDictionary(_ input: [String: Any]?) -> [NSAttributedString.Key: Any]? {
-    guard let input = input else { return nil }
-    return Dictionary(uniqueKeysWithValues: input.map { key, value in (NSAttributedString.Key(rawValue: key), value)})
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertToNSUserInterfaceItemIdentifier(_ input: String) -> NSUserInterfaceItemIdentifier {
-    return NSUserInterfaceItemIdentifier(rawValue: input)
-}

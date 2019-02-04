@@ -14,6 +14,8 @@
 		DC83F89A21CED31D004FB33B /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC83F89821CED31D004FB33B /* QuartzCore.framework */; };
 		DC83F89B21CED31D004FB33B /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC83F89921CED31D004FB33B /* Quartz.framework */; };
 		DCE3D85B21ED341E00E7FA78 /* instrumented.instrpkg in Sources */ = {isa = PBXBuildFile; fileRef = DCE3D85A21ED341E00E7FA78 /* instrumented.instrpkg */; };
+		F8E7F267220626A200A8FF23 /* ViewControllerActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E7F266220626A100A8FF23 /* ViewControllerActions.swift */; };
+		F8E7F26B220631A700A8FF23 /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E7F26A220631A700A8FF23 /* FileManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +29,8 @@
 		DC83F89921CED31D004FB33B /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		DCE3D85821ED341E00E7FA78 /* instrumented.instrdst */ = {isa = PBXFileReference; explicitFileType = com.apple.instruments.instrdst; includeInIndex = 0; path = instrumented.instrdst; sourceTree = BUILT_PRODUCTS_DIR; };
 		DCE3D85A21ED341E00E7FA78 /* instrumented.instrpkg */ = {isa = PBXFileReference; lastKnownFileType = "com.apple.instruments.package-definition"; path = instrumented.instrpkg; sourceTree = "<group>"; };
+		F8E7F266220626A100A8FF23 /* ViewControllerActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerActions.swift; sourceTree = "<group>"; };
+		F8E7F26A220631A700A8FF23 /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +73,8 @@
 				26ECD33E1E874B5C00380F56 /* Assets.xcassets */,
 				26ECD3401E874B5C00380F56 /* Main.storyboard */,
 				26ECD3431E874B5C00380F56 /* Info.plist */,
+				F8E7F266220626A100A8FF23 /* ViewControllerActions.swift */,
+				F8E7F26A220631A700A8FF23 /* FileManager.swift */,
 			);
 			path = FileSpy;
 			sourceTree = "<group>";
@@ -138,7 +144,7 @@
 					26ECD3361E874B5B00380F56 = {
 						CreatedOnToolsVersion = 8.2.1;
 						LastSwiftMigration = 1010;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 					DCE3D85721ED341E00E7FA78 = {
 						CreatedOnToolsVersion = 10.1;
@@ -182,8 +188,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8E7F267220626A200A8FF23 /* ViewControllerActions.swift in Sources */,
 				26ECD33D1E874B5C00380F56 /* ViewController.swift in Sources */,
 				26ECD33B1E874B5C00380F56 /* AppDelegate.swift in Sources */,
+				F8E7F26B220631A700A8FF23 /* FileManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -319,11 +327,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = FileSpy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.razeware.FileSpy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.2;
 			};
@@ -333,11 +344,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = FileSpy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.razeware.FileSpy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.2;
 			};
