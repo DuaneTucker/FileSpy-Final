@@ -17,6 +17,9 @@ class ViewController: NSViewController {
     @IBOutlet weak var matchingFilesTableView: NSTableView!
     @IBOutlet weak var srcImageView: IKImageView!
 
+    @IBOutlet weak var srcImgViewer: NSImageView!
+    @IBOutlet weak var dstImgViewer: NSImageView!
+    
     @IBOutlet weak var selectFromLbl: NSTextField!
     @IBOutlet weak var searchFromLbl: NSTextField!
     @IBOutlet weak var filesMatchingSearchLbl: NSTextField!
@@ -35,7 +38,7 @@ class ViewController: NSViewController {
     var srcFileList: [URL] = []
     var matchingFileList: [URL] = []
     let fileManager = PhotoFileManager()
-    
+
     func showErrorDialogIn(title: String, message: String) {
         let a: NSAlert = NSAlert()
         a.messageText = title
@@ -58,7 +61,7 @@ class ViewController: NSViewController {
         startSearchBtn.isEnabled = false
         view.window?.title = "PhotoDupFinder"
         DeleteSrcBtn.isEnabled = false
-        hideNonDupChkbox.isEnabled = false
+        hideNonDupChkbox.state = NSButton.StateValue.off
         nCharsSlider.intValue = 8
         change_nCharsValue(self)
 
@@ -119,7 +122,13 @@ class ViewController: NSViewController {
                     self.startSearchBtn.isEnabled = true
                 }
                 
-                hideNonDupChkbox.isEnabled = true
+                //hideNonDupChkbox.state = NSButton.StateValue.on
+                
+                self.srcImgViewer.image = nil
+                
+                self.dstImgViewer.image = nil
+                self.srcFileList.removeAll()
+                self.tableView.reloadData()
             }
         }
     }
@@ -149,27 +158,38 @@ class ViewController: NSViewController {
     // the image.
     var selectedItem: URL? {
         didSet {
-            //print("entering didSet for selectedItem")
-            
+            print("entering didSet for selectedItem \(String(describing: selectedItem))")
+
             guard let selectedUrl = selectedItem else {
                 return
             }
-            matchingFileList.removeAll()
-            self.matchingFilesTableView.reloadData()
+
 
             fileManager.getMatchingFileList(file: selectedUrl, completion: { (files: [URL]) -> Void in
+                print("clearing matchingFilesTableView")
+                self.matchingFileList.removeAll()
+                //self.matchingFilesTableView.reloadData()
+
+                print("reloading matchingFilesTableView")
                 self.matchingFileList.append(contentsOf: files)
                 self.matchingFilesTableView.reloadData()
+                print("reloading matchingFilesTableView complete")
             })
-            
+
             infoTextView.string = ""
-            
-            displayFileInfo(theUrl: selectedUrl)
+
+ //           displayFileInfo(theUrl: selectedUrl)
+            let img = NSImage(byReferencing: selectedUrl)
+            srcImgViewer.image = img
+            dstImgViewer.image = nil
+
             
             DeleteSrcBtn.isEnabled = true
-            //DispatchQueue.global(qos: .userInteractive).async {
-                self.srcImageView.setImageWith(selectedUrl)
-            //}
+//            DispatchQueue.global(qos: .userInitiated).async {
+//                print("displaying left image for \(selectedUrl)")
+//
+//                self.srcImageView.setImageWith(selectedUrl)
+//            }
         }
     }
     
@@ -187,10 +207,17 @@ class ViewController: NSViewController {
             
             infoTextView.string = ""
             
-            displayFileInfo(theUrl: selectedUrl)
+//            displayFileInfo(theUrl: selectedUrl)
 
             //self.DeleteSrcBtn.isEnabled = false
-            self.srcImageView.setImageWith(selectedUrl)
+            //DispatchQueue.global(qos: .userInitiated).async {
+                print("displaying right image for \(selectedUrl)")
+                
+                //self.srcImageView.setImageWith(selectedUrl)
+            let img = NSImage(byReferencing: selectedUrl)
+            dstImgViewer.image = img
+            DeleteSrcBtn.isEnabled = true
+            //}
         }
     }
     
@@ -236,12 +263,13 @@ extension ViewController: NSTableViewDelegate {
         
         if tableView == self.tableView {
             let item = srcFileList[row]
-            
-            let fileIcon = NSWorkspace.shared.icon(forFile: item.path)
+            print ("adding to left table, row \(row), item \(item)")
+
 
             if let cell = tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier("FileCell"), owner: nil)
                 as? NSTableCellView {
                 cell.textField?.stringValue = item.lastPathComponent
+                let fileIcon = NSWorkspace.shared.icon(forFile: item.path)
                 cell.imageView?.image = fileIcon
 
                 // this works, but it's slow as hell as it loads each large image
@@ -259,15 +287,17 @@ extension ViewController: NSTableViewDelegate {
             }
         }
         else if tableView == self.matchingFilesTableView {
+
             let item = matchingFileList[row]
-            
-            let fileIcon = NSWorkspace.shared.icon(forFile: item.path)
+            print ("adding to right table, row \(row), item \(item)")
+
             
             if let cell = matchingFilesTableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier("FileCell"), owner: nil)
                 as? NSTableCellView {
                 cell.textField?.stringValue = item.lastPathComponent
                 //cell.textField?.stringValue = item.relativePath
                 
+                let fileIcon = NSWorkspace.shared.icon(forFile: item.path)
                 cell.imageView?.image = fileIcon
                 return cell
             }
@@ -290,6 +320,44 @@ extension ViewController: NSTableViewDelegate {
             }
             
             selectedItem = self.srcFileList[self.tableView.selectedRow]
+            print ("\(String(describing: selectedItem)) selected from \(self.tableView.selectedRow), left table")
+            
+            ////////////
+//            if let item = selectedItem {
+//
+//                
+//                infoTextView.string = ""
+//                
+//                //           displayFileInfo(theUrl: selectedUrl)
+//                
+//                DeleteSrcBtn.isEnabled = true
+//                //DispatchQueue.global(qos: .userInitiated).async {
+//                    print("displaying left image for \(item)")
+//                    
+//                    //self.srcImageView.setImageWith(item)
+//                //}
+//                let img = NSImage(byReferencing: item)
+//                imageView.image = img
+//                
+//                fileManager.getMatchingFileList(file: item, completion: { (files: [URL]) -> Void in
+//                    print("clearing matchingFilesTableView")
+//                    self.matchingFileList.removeAll()
+//                    //self.matchingFilesTableView.reloadData()
+//                    
+//                    if (files.count > 0) {
+//                        print("reloading matchingFilesTableView")
+//                        self.matchingFileList.append(contentsOf: files)
+//                    } else {
+//                        print ("no matching files found")
+//                    }
+//
+//                    self.matchingFilesTableView.reloadData()
+//                    print("reloading matchingFilesTableView complete")
+//                })
+//            }
+
+            ///////////
+
         }
         else if (table == self.matchingFilesTableView) {
             if self.matchingFilesTableView.selectedRow < 0 {
@@ -297,8 +365,16 @@ extension ViewController: NSTableViewDelegate {
                 return
             }
             
-            self.matchingSelectedItem = matchingFileList[self.matchingFilesTableView.selectedRow]
+            matchingSelectedItem = matchingFileList[self.matchingFilesTableView.selectedRow]
+            print ("\(String(describing: matchingSelectedItem)) selected from \(self.matchingFilesTableView.selectedRow), right table")
+
         }
+        else {
+            print("wrong table???")
+        }
+        
+        print("leaving tableViewSelectionDidChange")
+
     }
     
     func displayFileInfo(theUrl: URL) {

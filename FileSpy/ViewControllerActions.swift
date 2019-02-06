@@ -114,7 +114,7 @@ extension ViewController {
     }
 
     @IBAction func hideNonDupes(_ sender: Any) {
-        if (hideNonDupChkbox.state == NSButton.StateValue.on) {
+//        if (hideNonDupChkbox.state == NSButton.StateValue.on) {
 //            var newList: [URL] = []
 //            selectedItem = nil
 //
@@ -126,13 +126,13 @@ extension ViewController {
 //            self.srcFileList.removeAll()
 //            self.srcFileList = newList
 //            self.tableView.reloadData()
-        } else {
+//        } else {
 //            selectedItem = nil
 //            self.srcFileList.removeAll()
 //
 //            self.srcFileList.append(contentsOf: SequencefileManager.srcFileList)
 //            self.tableView.reloadData()
-       }
+//       }
     }
 
     @IBAction func recurseCkbxChanged(_ sender: Any) {

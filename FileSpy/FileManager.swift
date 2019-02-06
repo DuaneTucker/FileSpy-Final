@@ -14,7 +14,9 @@ class PhotoFileManager {
     
     var srcFileList: [URL] = []
     var internalDestFileList: [URL] = []
-    var masterDestFileList: [URL] = []
+   // var masterDestFileList: [URL] = []
+    var masterDestFileList: [String] = []
+
     var showInvisibles = false
     var ignoreCase = false
     var nCharsEnabled = false
@@ -33,7 +35,10 @@ class PhotoFileManager {
         // go get all files
         fillMasterDestList(folder: folder)
 
-        for fileUrl:URL in self.masterDestFileList {
+        //for fileUrl:URL in self.masterDestFileList {
+        for fileUrl:String in self.masterDestFileList {
+            let fileUrl = URL(fileURLWithPath: fileUrl)
+
             if (self.isMatchingSrcFileList(file: fileUrl)) {
                 self.internalDestFileList.append(fileUrl)
             }
@@ -66,23 +71,33 @@ class PhotoFileManager {
     // of file urls from the internal matching list. The returned list will then
     // get displayed in the right table.
     func getMatchingFileList(file: URL, completion: @escaping ([URL]) -> ())  {
-        var fileList: [URL] = []
         let src = file.lastPathComponent
         
         DispatchQueue.global(qos: .userInteractive).async {
+            var fileList: [URL] = []
+
+            print ("entering getMatchingFileList for file \(file)")
+            
             for destFileURL:URL in self.internalDestFileList {
                 let dst = destFileURL.lastPathComponent
-                //print("commparing \(src) to \(dst)")
+                print("commparing \(src) to \(dst)")
                 
                 //NOTE: I think this comparison should only be done in the fillInternalMatchingList function
                 // That way, the only files in the internal list would have already been verified to match.
                 // This function could simply compare the filename components to determine the list to return.
-                if (self.compareFiles(src: src, dst: dst)) {
+//                if (self.compareFiles(src: src, dst: dst)) {
+//                    fileList.append(destFileURL)
+//                }
+                
+                if (src == dst) {
+                    print("adding \(destFileURL)")
+
                     fileList.append(destFileURL)
                 }
             }
             
             DispatchQueue.main.async {
+                print ("calling completion method for getMatchingFileList")
                 completion(fileList)
             }
             
@@ -141,7 +156,8 @@ class PhotoFileManager {
         } else {  // do not recurse; ignore subfolders
             let searchFolderContents: [URL] = getFolderContents(folder: folder)
             for fileUrl:URL in searchFolderContents {
-                masterDestFileList.append(fileUrl)
+                //masterDestFileList.append(fileUrl)
+                masterDestFileList.append(fileUrl.absoluteString)
             }
         }
     }
@@ -157,7 +173,9 @@ class PhotoFileManager {
                 files.remove(at: 0) // Remove this directory from the search list
             } else {
                 // Not a directory so add it to the dest list.
-                masterDestFileList.append(files[0])
+                masterDestFileList.append(files[0].absoluteString)
+                //masterDestFileList.append(files[0])
+                
                 // Remove this file from the list of remaining files/dirs to check
                 files.remove(at: 0)
             }
