@@ -24,7 +24,12 @@ class ViewController: NSViewController {
     @IBOutlet weak var searchFromLbl: NSTextField!
     @IBOutlet weak var filesMatchingSearchLbl: NSTextField!
     @IBOutlet weak var compare_nCharsLable: NSTextField!
-
+    @IBOutlet weak var numMatchesFoundLbl: NSTextField!
+    @IBOutlet weak var intDstListCountLbl: NSTextField!
+    @IBOutlet weak var srcTblListCountLbl: NSTextField!
+    @IBOutlet weak var selectedSrcFilePathLbl: NSTextField!
+    @IBOutlet weak var selectedDstFilePathLbl: NSTextField!
+    
     @IBOutlet weak var startSearchBtn: NSButton!
     @IBOutlet weak var DeleteSrcBtn: NSButton!
     
@@ -37,8 +42,20 @@ class ViewController: NSViewController {
     // MARK: - Properties
     var srcFileList: [URL] = []
     var matchingFileList: [URL] = []
-    let fileManager = PhotoFileManager()
-
+    //let fileManager = PhotoFileManager()
+    var internalSrcFileList: [URL] = []
+    var internalDestFileList: [URL] = []
+    //var masterDestFileList: [URL] = []
+    //var masterDestFileList: [String] = []
+    
+    var showInvisibles = false
+    var ignoreCase = false
+    var nCharsEnabled = false
+    var nCharsValue = 3
+    var recurseDirs = false
+    //var hideNonDups = false;
+    
+    
     func showErrorDialogIn(title: String, message: String) {
         let a: NSAlert = NSAlert()
         a.messageText = title
@@ -67,16 +84,16 @@ class ViewController: NSViewController {
 
         // Initialize fileManager object
         if (Enable_n_chars.state == NSButton.StateValue.on) {
-            fileManager.nCharsEnabled = true
+            self.nCharsEnabled = true
         } else {
-            fileManager.nCharsEnabled = false
+            self.nCharsEnabled = false
         }
         
-        fileManager.nCharsValue = Int(nCharsSlider.intValue)
+        self.nCharsValue = Int(nCharsSlider.intValue)
         if (Enable_n_chars.state == NSButton.StateValue.on) {
-            fileManager.nCharsEnabled = true
+            self.nCharsEnabled = true
         } else {
-            fileManager.nCharsEnabled = false
+            self.nCharsEnabled = false
         }
         
 //        if (hideNonDupChkbox.state == NSButton.StateValue.on) {
@@ -86,14 +103,14 @@ class ViewController: NSViewController {
 //        }
         
         if (recurseCkbx.state == NSButton.StateValue.on) {
-            fileManager.recurseDirs = true
+            self.recurseDirs = true
         } else {
-            fileManager.recurseDirs = false
+            self.recurseDirs = false
         }
         if (ignoreCaseCheckbox.state == NSButton.StateValue.on) {
-            fileManager.ignoreCase = true
+            self.ignoreCase = true
         } else {
-            fileManager.ignoreCase = false
+            self.ignoreCase = false
         }
     }
     
@@ -104,11 +121,18 @@ class ViewController: NSViewController {
     var selectSrcFolder: URL? {
         didSet {
             if let selectedFolder = self.selectSrcFolder {
-                self.fileManager.fillSourceList(folder:
+                self.srcImgViewer.image = nil
+                
+                self.dstImgViewer.image = nil
+                self.srcFileList.removeAll()
+                self.tableView.reloadData()
+                
+                fillSourceList(folder:
                     selectedFolder, completion: { (files: [URL]) in
                         self.srcFileList = files
                         self.tableView.reloadData()
                         self.tableView.scrollRowToVisible(0)
+                        self.srcTblListCountLbl.stringValue = "\(self.srcFileList.count)"
 
                 })
                 
@@ -123,12 +147,6 @@ class ViewController: NSViewController {
                 }
                 
                 //hideNonDupChkbox.state = NSButton.StateValue.on
-                
-                self.srcImgViewer.image = nil
-                
-                self.dstImgViewer.image = nil
-                self.srcFileList.removeAll()
-                self.tableView.reloadData()
             }
         }
     }
@@ -165,7 +183,7 @@ class ViewController: NSViewController {
             }
 
 
-            fileManager.getMatchingFileList(file: selectedUrl, completion: { (files: [URL]) -> Void in
+            getMatchingFileList(file: selectedUrl, completion: { (files: [URL]) -> Void in
                 print("clearing matchingFilesTableView")
                 self.matchingFileList.removeAll()
                 //self.matchingFilesTableView.reloadData()
@@ -182,7 +200,7 @@ class ViewController: NSViewController {
             let img = NSImage(byReferencing: selectedUrl)
             srcImgViewer.image = img
             dstImgViewer.image = nil
-
+            selectedSrcFilePathLbl.stringValue = getRelativePath(parentUrl: selectSrcFolder!, childUrl: selectedUrl)
             
             DeleteSrcBtn.isEnabled = true
 //            DispatchQueue.global(qos: .userInitiated).async {
@@ -217,12 +235,198 @@ class ViewController: NSViewController {
             let img = NSImage(byReferencing: selectedUrl)
             dstImgViewer.image = img
             DeleteSrcBtn.isEnabled = true
+            
+            //selectedDstFilePathLbl.stringValue = selectedUrl.path
+            selectedDstFilePathLbl.stringValue = getRelativePath(parentUrl: selectDstFolder!, childUrl: selectedUrl)
             //}
         }
     }
     
-    // MARK: - View Lifecycle & error dialog utility
     
+    // This function is called to load the source folder
+    // list with all file URLs in the source folder
+    func fillSourceList(folder: URL, completion: @escaping ([URL]) -> ()) {
+        DispatchQueue.global(qos: .userInteractive).async {
+            // Start with an empty list.
+            self.internalSrcFileList.removeAll()
+            self.getFolderContents(folder: folder, completion: { (files: [URL]) in
+                self.internalSrcFileList.append(contentsOf: files)
+                DispatchQueue.main.async {
+                    completion(self.internalSrcFileList)
+                }
+                
+            })
+        }
+    }
+    
+    // This function is called to obtain and return a list of URLs representing
+    // the files within the specified folder name.
+    func getFolderContents(folder: URL, completion: @escaping ([URL]) -> ())  {
+        let fileManager = FileManager.default
+        do {
+            let contents = try fileManager.contentsOfDirectory(atPath: folder.path)
+            //print ("first char = \(folder.path.prefix(1))")
+            //    .filter { return showInvisibles ? true : $0.characters.first != "." }
+            
+            let urls = contents
+                .filter { return showInvisibles ? true : $0.prefix(1) != "." }
+                .map { return folder.appendingPathComponent($0) }
+            completion (urls)
+        } catch {
+            completion ([])
+        }
+    }
+    
+    // Given a file that was selected in the left table, return back a list
+    // of file urls from the internal matching list. The returned list will then
+    // get displayed in the right table.
+    func getMatchingFileList(file: URL, completion: @escaping ([URL]) -> ())  {
+        let src = file.lastPathComponent
+        
+        DispatchQueue.global(qos: .userInteractive).async {
+            var fileList: [URL] = []
+            
+            print ("entering getMatchingFileList for file \(file)")
+            
+            for destFileURL:URL in self.internalDestFileList {
+                let dst = destFileURL.lastPathComponent
+                print("commparing \(src) to \(dst)")
+                
+                //NOTE: I think this comparison should only be done in the fillInternalMatchingList function
+                // That way, the only files in the internal list would have already been verified to match.
+                // This function could simply compare the filename components to determine the list to return.
+                //                if (self.compareFiles(src: src, dst: dst)) {
+                //                    fileList.append(destFileURL)
+                //                }
+                
+                if (src == dst) {
+                    print("adding \(destFileURL)")
+                    
+                    fileList.append(destFileURL)
+                }
+            }
+            
+            DispatchQueue.main.async {
+                print ("calling completion method for getMatchingFileList")
+                completion(fileList)
+            }
+            
+        }
+    }
+    
+    // Given a folder name found while searching through search folders, return back a list
+    // of file urls from the folder that match files in the source foler.
+    func isMatchingSrcFileList(file: URL)  -> Bool {
+        var matches: Bool = false
+        let dst = file.lastPathComponent
+        let dstPath = file.deletingLastPathComponent()
+        
+        for srcFileURL:URL in internalSrcFileList {
+            let src = srcFileURL.lastPathComponent
+            let srcPath = srcFileURL.deletingLastPathComponent()
+            
+            // make sure we're not comparing the same file in the same directory
+            if (srcPath != dstPath) {
+                //print("looking up dups for \(src)")
+                
+                if (compareFiles(src: src, dst: dst)) {
+                    //print("FOUND \(dst)")
+                    matches = true
+                    break
+                }
+            }
+        }
+        
+        return matches
+    }
+    
+    func compareFiles(src: String, dst: String) -> Bool {
+        var ret: Bool = false
+        
+        if (nCharsEnabled) {
+            // test only n number of characters in the name
+            
+            if (ignoreCase) {
+                if (src.prefix(Int(nCharsValue)).caseInsensitiveCompare(dst.prefix(Int(nCharsValue))) == .orderedSame){
+                    ret = true
+                }
+            } else {
+                if (src.prefix(Int(nCharsValue)) == dst.prefix(Int(nCharsValue))) {
+                    ret = true
+                }
+            }
+        } else {
+            // test the entire name
+            
+            if (ignoreCase) {
+                if (src.caseInsensitiveCompare(dst) == .orderedSame){
+                    ret = true
+                }
+            } else {
+                if (src == dst) {
+                    ret = true
+                }
+            }
+        }
+        
+        return ret
+    }
+    
+    func infoAbout(url: URL, completion: @escaping (NSAttributedString?) -> ())  {
+        let fileMgr = FileManager.default
+        var retStr: NSAttributedString? = nil
+        
+        do {
+            let attributes = try fileMgr.attributesOfItem(atPath: url.path)
+            var report: [String] = ["\(url.path)", ""]
+            
+            for (key, value) in attributes {
+                // ignore NSFileExtendedAttributes as it is a messy dictionary
+                if key.rawValue == "NSFileExtendedAttributes" { continue }
+                report.append("\(key.rawValue):\t \(value)")
+            }
+            let infoString = report.joined(separator: "\n")
+            if !infoString.isEmpty {
+                retStr = formatInfoText(infoString)
+            }
+        } catch {
+            retStr = nil
+        }
+        
+        completion(retStr)
+    }
+    
+    fileprivate func formatInfoText(_ text: String) -> NSAttributedString {
+        let paragraphStyle = NSMutableParagraphStyle.default.mutableCopy() as? NSMutableParagraphStyle
+        paragraphStyle?.minimumLineHeight = 24
+        paragraphStyle?.alignment = .left
+        paragraphStyle?.tabStops = [ NSTextTab(type: .leftTabStopType, location: 240) ]
+        
+        //        let textAttributes: [String: Any] = [
+        //            convertFromNSAttributedStringKey(NSAttributedString.Key.font): NSFont.systemFont(ofSize: 14),
+        //            convertFromNSAttributedStringKey(NSAttributedString.Key.paragraphStyle): paragraphStyle ?? NSParagraphStyle.default
+        //        ]
+        
+        let textAttributes: [String: Any] = [
+            NSAttributedString.Key.font.rawValue: NSFont.systemFont(ofSize: 14),
+            NSAttributedString.Key.paragraphStyle.rawValue: paragraphStyle ?? NSParagraphStyle.default
+        ]
+        let formattedText = NSAttributedString(string: text, attributes: convertToOptionalNSAttributedStringKeyDictionary(textAttributes))
+        return formattedText
+    }
+    
+    // Helper function inserted by Swift 4.2 migrator.
+    //    func convertFromNSAttributedStringKey(_ input: NSAttributedString.Key) -> String {
+    //        return input.rawValue
+    //    }
+    
+    // Helper function inserted by Swift 4.2 migrator.
+    func convertToOptionalNSAttributedStringKeyDictionary(_ input: [String: Any]?) -> [NSAttributedString.Key: Any]? {
+        guard let input = input else { return nil }
+        return Dictionary(uniqueKeysWithValues: input.map { key, value in (NSAttributedString.Key(rawValue: key), value)})
+    }
+    
+    // MARK: - View Lifecycle & error dialog utility
     override func viewWillAppear() {
         super.viewWillAppear()
         //restoreCurrentSelections()
@@ -378,13 +582,26 @@ extension ViewController: NSTableViewDelegate {
     }
     
     func displayFileInfo(theUrl: URL) {
-        fileManager.infoAbout(url: theUrl, completion: { (retStr: NSAttributedString?) -> Void in
+        infoAbout(url: theUrl, completion: { (retStr: NSAttributedString?) -> Void in
             if let infoString = retStr {
                 self.infoTextView.textStorage?.setAttributedString(infoString)
             } else {
                 print ("couldn't get info string for \(theUrl)")
             }
         })
+    }
+    
+    func getRelativePath(parentUrl: URL, childUrl: URL) -> String {
+        let parent = parentUrl.path
+        let child = childUrl.path
+        var len = child.count - parent.count
+        len *= -1
+        let index = child.index(child.endIndex, offsetBy: len)
+        let mySubstring = child.suffix(from: index) // playground
+        
+        //let mySubstring = child.suffix(len) // Hello
+
+        return String(mySubstring)
     }
 }
 
