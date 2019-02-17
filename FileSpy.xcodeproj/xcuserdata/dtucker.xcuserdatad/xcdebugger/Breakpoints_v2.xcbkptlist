@@ -10,7 +10,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewController.swift"
-            timestampString = "571436033.57216"
+            timestampString = "572105106.722396"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "114"
@@ -26,7 +26,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewController.swift"
-            timestampString = "571436033.572673"
+            timestampString = "572105106.722438"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "142"
@@ -42,7 +42,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewController.swift"
-            timestampString = "571436033.572909"
+            timestampString = "572105106.722469"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "130"
@@ -88,11 +88,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewController.swift"
-            timestampString = "571436033.57313"
+            timestampString = "572105106.722497"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "493"
-            endingLineNumber = "493"
+            startingLineNumber = "517"
+            endingLineNumber = "517"
             landmarkName = "tableView(_:viewFor:row:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -104,11 +104,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewControllerActions.swift"
-            timestampString = "571436033.573357"
+            timestampString = "571526335.543942"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "76"
-            endingLineNumber = "76"
+            startingLineNumber = "106"
+            endingLineNumber = "106"
             landmarkName = "startSearch(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -120,11 +120,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewController.swift"
-            timestampString = "571436033.573487"
+            timestampString = "572105106.722581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "186"
-            endingLineNumber = "186"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
             landmarkName = "selectedItem"
             landmarkType = "24">
             <Locations>
@@ -168,11 +168,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewControllerActions.swift"
-            timestampString = "571436033.57371"
+            timestampString = "571526335.544139"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "118"
-            endingLineNumber = "118"
+            startingLineNumber = "167"
+            endingLineNumber = "167"
             landmarkName = "startSearch(_:)"
             landmarkType = "7">
             <Locations>
@@ -216,11 +216,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewController.swift"
-            timestampString = "571436033.573752"
+            timestampString = "572105106.722622"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "187"
-            endingLineNumber = "187"
+            startingLineNumber = "185"
+            endingLineNumber = "185"
             landmarkName = "selectedItem"
             landmarkType = "24">
          </BreakpointContent>
@@ -232,11 +232,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewControllerActions.swift"
-            timestampString = "571436033.573966"
+            timestampString = "571526335.5442359"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "118"
-            endingLineNumber = "118"
+            startingLineNumber = "167"
+            endingLineNumber = "167"
             landmarkName = "startSearch(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -248,11 +248,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewControllerActions.swift"
-            timestampString = "571436033.574003"
+            timestampString = "571526335.544279"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "71"
-            endingLineNumber = "71"
+            startingLineNumber = "101"
+            endingLineNumber = "101"
             landmarkName = "startSearch(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -264,11 +264,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewController.swift"
-            timestampString = "571436033.574038"
+            timestampString = "572105106.722665"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "289"
-            endingLineNumber = "289"
+            startingLineNumber = "295"
+            endingLineNumber = "295"
             landmarkName = "getMatchingFileList(file:completion:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -280,11 +280,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewControllerActions.swift"
-            timestampString = "571436033.574244"
+            timestampString = "571526335.544369"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "119"
-            endingLineNumber = "119"
+            startingLineNumber = "168"
+            endingLineNumber = "168"
             landmarkName = "startSearch(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -292,15 +292,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewControllerActions.swift"
-            timestampString = "571436033.57428"
+            timestampString = "571526335.544409"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "86"
-            endingLineNumber = "86"
+            startingLineNumber = "143"
+            endingLineNumber = "143"
             landmarkName = "startSearch(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -312,12 +312,44 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FileSpy/ViewController.swift"
-            timestampString = "571436033.574313"
+            timestampString = "572105106.722708"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "595"
-            endingLineNumber = "595"
+            startingLineNumber = "623"
+            endingLineNumber = "623"
             landmarkName = "getRelativePath(parentUrl:childUrl:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "FileSpy/ViewController.swift"
+            timestampString = "572105106.722737"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "628"
+            endingLineNumber = "628"
+            landmarkName = "getRelativePath(parentUrl:childUrl:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "FileSpy/ViewControllerActions.swift"
+            timestampString = "571526335.544524"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
+            landmarkName = "deleteSrcFile(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -327,13 +359,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "FileSpy/ViewController.swift"
-            timestampString = "571436033.574497"
+            filePath = "FileSpy/ViewControllerActions.swift"
+            timestampString = "571526335.5445549"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "600"
-            endingLineNumber = "600"
-            landmarkName = "getRelativePath(parentUrl:childUrl:)"
+            startingLineNumber = "60"
+            endingLineNumber = "60"
+            landmarkName = "deleteSrcFile(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

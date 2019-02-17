@@ -27,6 +27,7 @@
 		26ECD3431E874B5C00380F56 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DC83F89821CED31D004FB33B /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		DC83F89921CED31D004FB33B /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
+		DCB47B162218626300EC49C9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		DCE3D85821ED341E00E7FA78 /* instrumented.instrdst */ = {isa = PBXFileReference; explicitFileType = com.apple.instruments.instrdst; includeInIndex = 0; path = instrumented.instrdst; sourceTree = BUILT_PRODUCTS_DIR; };
 		DCE3D85A21ED341E00E7FA78 /* instrumented.instrpkg */ = {isa = PBXFileReference; lastKnownFileType = "com.apple.instruments.package-definition"; path = instrumented.instrpkg; sourceTree = "<group>"; };
 		F8E7F266220626A100A8FF23 /* ViewControllerActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerActions.swift; sourceTree = "<group>"; };
@@ -210,6 +211,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				26ECD3411E874B5C00380F56 /* Base */,
+				DCB47B162218626300EC49C9 /* en */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";

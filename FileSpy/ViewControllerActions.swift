@@ -34,20 +34,40 @@ extension ViewController {
                         try fileMgr.trashItem(at: selectedUrl, resultingItemURL: nil)
 
                         //DispatchQueue.main.async { [unowned self] in
-                            // now remove the file from the table.
-                            var index = 0;
-                            for fileUrl:URL in self.srcFileList {
-                                if (fileUrl == selectedUrl) {
-                                    self.srcFileList.remove(at: index)
-                                    break
-                                }
-                                index += 1
+                        // now remove the file from the table.
+                        var index = 0;
+                        
+                        // Remove from the table data source
+                        for fileUrl:URL in self.srcFileList {
+                            if (fileUrl == selectedUrl) {
+                                self.srcFileList.remove(at: index)
+                                break
                             }
+                            index += 1
+                        }
+                        
+                        // Remove from the internal src list
+                        index = 0
+                        for fileUrl:URL in self.internalSrcFileList {
+                            if (fileUrl == selectedUrl) {
+                                self.internalSrcFileList.remove(at: index)
+                                break
+                            }
+                            index += 1
+                        }
+                        
+                        DispatchQueue.main.async {
                             self.selectedItem = nil
                             self.tableView.reloadData()
                             self.DeleteSrcBtn.isEnabled = false
-                        self.srcTblListCountLbl.stringValue = "\(self.srcFileList.count)"
-                        //}
+                            self.srcTblListCountLbl.stringValue = "\(self.srcFileList.count)"
+                            
+                            // Remove all indications that a file was selected
+                            self.selectedSrcFilePathLbl.stringValue = ""
+                            self.selectedDstFilePathLbl.stringValue = ""
+                            self.srcImgViewer.image = nil
+                            self.dstImgViewer.image = nil
+                        }
                     }
                     catch let error as NSError {
                         print("Ooops! Something went wrong: \(error)")
@@ -64,9 +84,19 @@ extension ViewController {
         print("Starting search for matches")
         self.startSearchBtn.isEnabled = false
         
+        // Do this to fix a weird problem where right table was incorrect when a src file was deleted and
+        // the search folder wasn't reset.
+        matchingSelectedItem = nil
+
+        // UI cleanup in case search is clicked with different src and/or dst folder settings
         self.matchingFileList.removeAll()
         self.matchingFilesTableView.reloadData()
-        
+        self.selectedSrcFilePathLbl.stringValue = ""
+        self.selectedDstFilePathLbl.stringValue = ""
+        self.srcImgViewer.image = nil
+        self.dstImgViewer.image = nil
+        self.srcTblListCountLbl.stringValue = "0"
+
         print("getting internal list of all available matching files now...")
         if let searchFolder = selectDstFolder {
             self.internalDestFileList.removeAll()
@@ -83,18 +113,37 @@ extension ViewController {
                                                                         return true
                     })!
                     
-                    for case let fileURL as URL in enumerator {
-                        let resourceValues = try fileURL.resourceValues(forKeys: Set(resourceKeys))
-                        //print(fileURL.path, resourceValues.creationDate!, resourceValues.isDirectory!)
-                        if (!fileURL.hasDirectoryPath) {
-                            if (self.isMatchingSrcFileList(file: fileURL)) {
-                                self.internalDestFileList.append(fileURL)
+                    //var done = false
+                    //while !done {
+                        autoreleasepool {
+                            //done = (element == nil)
+                            for case let fileURL as URL in enumerator {
+                                //let resourceValues = try fileURL.resourceValues(forKeys: Set(resourceKeys))
+                                //print(fileURL.path, resourceValues.creationDate!, resourceValues.isDirectory!)
+                                if (!fileURL.hasDirectoryPath) {
+                                    let file: URL = URL(string: fileURL.absoluteString)!
+                                    if (self.isMatchingSrcFileList(file: file)) {
+                                        self.internalDestFileList.append(file)
+                                    }
+                                }
                             }
                         }
-                    }
-                    }catch {
-                        print(error)
-                    }
+                    //}
+
+//                    for case let fileURL as URL in enumerator {
+//                        //let resourceValues = try fileURL.resourceValues(forKeys: Set(resourceKeys))
+//                        //print(fileURL.path, resourceValues.creationDate!, resourceValues.isDirectory!)
+//                        if (!fileURL.hasDirectoryPath) {
+//                            let file: URL = URL(string: fileURL.absoluteString)!
+//                            if (self.isMatchingSrcFileList(file: file)) {
+//                                self.internalDestFileList.append(file)
+//                            }
+//                        }
+//                    }
+                }
+//                catch {
+//                        print(error)
+//                    }
                 
                 getFolderContents(folder: searchFolder, completion: { (files: [URL]) in
 //                    while (files.count > 0) {
@@ -196,25 +245,44 @@ extension ViewController {
     }
 
     @IBAction func hideNonDupes(_ sender: Any) {
-//        if (hideNonDupChkbox.state == NSButton.StateValue.on) {
-//            var newList: [URL] = []
-//            selectedItem = nil
-//
-//            for fileUrl:URL in self.srcFileList {
-//                if (fileManager.getMatchingFileList(file: fileUrl).count > 0) {
-//                    newList.append(fileUrl)
-//                }
-//            }
-//            self.srcFileList.removeAll()
-//            self.srcFileList = newList
-//            self.tableView.reloadData()
-//        } else {
-//            selectedItem = nil
-//            self.srcFileList.removeAll()
-//
-//            self.srcFileList.append(contentsOf: SequencefileManager.srcFileList)
-//            self.tableView.reloadData()
-//       }
+        if (hideNonDupChkbox.state == NSButton.StateValue.on) {
+            var newList: [URL] = []
+            selectedItem = nil
+
+            for fileUrl:URL in self.srcFileList {
+                let src = fileUrl.lastPathComponent
+
+                // See if the file in the src list exists in the dest search list
+                for destFileURL:URL in self.internalDestFileList {
+                    let dst = destFileURL.lastPathComponent
+                    //print("commparing \(src) to \(dst)")
+                    
+                    // looking only for the first match, don't care if there are more. Any match means
+                    // the source file remains.
+                    if (src == dst) {
+                        //print("adding \(destFileURL)")
+                        
+                        newList.append(fileUrl)
+                        break
+                    }
+                }
+            }
+        
+            if (newList.count > 0) {
+                self.srcFileList.removeAll()
+                self.srcFileList.append(contentsOf: newList)
+                self.tableView.reloadData()
+                newList.removeAll()
+            }
+
+        } else {
+            selectedItem = nil
+            self.srcFileList.removeAll()
+            self.srcFileList.append(contentsOf: internalSrcFileList)
+            self.tableView.reloadData()
+       }
+        
+        self.srcTblListCountLbl.stringValue = "\(srcFileList.count)"
     }
 
     @IBAction func recurseCkbxChanged(_ sender: Any) {

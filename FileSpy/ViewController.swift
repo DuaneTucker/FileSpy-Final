@@ -13,7 +13,7 @@ class ViewController: NSViewController {
     // MARK: - Outlets
     
     @IBOutlet weak var tableView: NSTableView!
-    @IBOutlet weak var infoTextView: NSTextView!
+    //@IBOutlet weak var infoTextView: NSTextView!
     @IBOutlet weak var matchingFilesTableView: NSTableView!
     @IBOutlet weak var srcImageView: IKImageView!
 
@@ -145,8 +145,6 @@ class ViewController: NSViewController {
                 } else {
                     self.startSearchBtn.isEnabled = true
                 }
-                
-                //hideNonDupChkbox.state = NSButton.StateValue.on
             }
         }
     }
@@ -192,9 +190,17 @@ class ViewController: NSViewController {
                 self.matchingFileList.append(contentsOf: files)
                 self.matchingFilesTableView.reloadData()
                 print("reloading matchingFilesTableView complete")
+                
+                if (files.count > 0) {
+                    // automatically select (and therefore display image of) first matching file
+                    self.matchingFilesTableView.scrollRowToVisible(0)
+                    self.matchingSelectedItem = self.matchingFileList[0]
+                } else {
+                    self.selectedDstFilePathLbl.stringValue = ""
+                }
             })
 
-            infoTextView.string = ""
+            //infoTextView.string = ""
 
  //           displayFileInfo(theUrl: selectedUrl)
             let img = NSImage(byReferencing: selectedUrl)
@@ -223,13 +229,13 @@ class ViewController: NSViewController {
                 return
             }
             
-            infoTextView.string = ""
+            //infoTextView.string = ""
             
 //            displayFileInfo(theUrl: selectedUrl)
 
             //self.DeleteSrcBtn.isEnabled = false
             //DispatchQueue.global(qos: .userInitiated).async {
-                print("displaying right image for \(selectedUrl)")
+                //print("displaying right image for \(selectedUrl)")
                 
                 //self.srcImageView.setImageWith(selectedUrl)
             let img = NSImage(byReferencing: selectedUrl)
@@ -290,17 +296,10 @@ class ViewController: NSViewController {
             
             for destFileURL:URL in self.internalDestFileList {
                 let dst = destFileURL.lastPathComponent
-                print("commparing \(src) to \(dst)")
-                
-                //NOTE: I think this comparison should only be done in the fillInternalMatchingList function
-                // That way, the only files in the internal list would have already been verified to match.
-                // This function could simply compare the filename components to determine the list to return.
-                //                if (self.compareFiles(src: src, dst: dst)) {
-                //                    fileList.append(destFileURL)
-                //                }
+                //print("commparing \(src) to \(dst)")
                 
                 if (src == dst) {
-                    print("adding \(destFileURL)")
+                    //print("adding \(destFileURL)")
                     
                     fileList.append(destFileURL)
                 }
@@ -318,52 +317,77 @@ class ViewController: NSViewController {
     // of file urls from the folder that match files in the source foler.
     func isMatchingSrcFileList(file: URL)  -> Bool {
         var matches: Bool = false
-        let dst = file.lastPathComponent
-        let dstPath = file.deletingLastPathComponent()
+        var dst: String? = file.lastPathComponent
+        var dstPath: URL? = file.deletingLastPathComponent()
         
         for srcFileURL:URL in internalSrcFileList {
-            let src = srcFileURL.lastPathComponent
-            let srcPath = srcFileURL.deletingLastPathComponent()
+            var src: String? = srcFileURL.lastPathComponent
+            var srcPath: URL? = srcFileURL.deletingLastPathComponent()
             
             // make sure we're not comparing the same file in the same directory
             if (srcPath != dstPath) {
                 //print("looking up dups for \(src)")
                 
-                if (compareFiles(src: src, dst: dst)) {
+                if (compareFiles(src: src!, dst: dst!)) {
                     //print("FOUND \(dst)")
                     matches = true
                     break
                 }
             }
+            src = nil
+            srcPath = nil
+            if (src != nil) {
+                print("src leaking")
+            }
+            
+            if (srcPath != nil) {
+                print("srcPath leaking")
+            }
         }
-        
+        dst = nil
+        dstPath = nil
         return matches
     }
     
     func compareFiles(src: String, dst: String) -> Bool {
         var ret: Bool = false
+        let srcStr = src
+        let dstStr = dst
+        
+//        var len = child.count - parent.count
+//        len *= -1
+//        let index = child.index(child.endIndex, offsetBy: len)
+//        let mySubstring = child.suffix(from: index) // playground
+        
         
         if (nCharsEnabled) {
             // test only n number of characters in the name
-            
+            var srcPrefix: String? = String(srcStr.prefix(Int(nCharsValue)))
+            var dstPrefix: String? = String(dstStr.prefix(Int(nCharsValue)))
+
             if (ignoreCase) {
-                if (src.prefix(Int(nCharsValue)).caseInsensitiveCompare(dst.prefix(Int(nCharsValue))) == .orderedSame){
+                //if (src.prefix(Int(nCharsValue)).caseInsensitiveCompare(dst.prefix(Int(nCharsValue))) == .orderedSame){
+
+                if (srcPrefix!.caseInsensitiveCompare(dstPrefix!) == .orderedSame){
                     ret = true
                 }
             } else {
-                if (src.prefix(Int(nCharsValue)) == dst.prefix(Int(nCharsValue))) {
+                if (srcStr.prefix(Int(nCharsValue)) == dstStr.prefix(Int(nCharsValue))) {
                     ret = true
                 }
             }
+            srcPrefix = nil
+            dstPrefix = nil
+
         } else {
             // test the entire name
             
             if (ignoreCase) {
-                if (src.caseInsensitiveCompare(dst) == .orderedSame){
+                if (srcStr.caseInsensitiveCompare(dstStr) == .orderedSame){
                     ret = true
                 }
             } else {
-                if (src == dst) {
+                if (srcStr == dstStr) {
                     ret = true
                 }
             }
@@ -467,7 +491,7 @@ extension ViewController: NSTableViewDelegate {
         
         if tableView == self.tableView {
             let item = srcFileList[row]
-            print ("adding to left table, row \(row), item \(item)")
+            //print ("adding to left table, row \(row), item \(item)")
 
 
             if let cell = tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier("FileCell"), owner: nil)
@@ -493,7 +517,7 @@ extension ViewController: NSTableViewDelegate {
         else if tableView == self.matchingFilesTableView {
 
             let item = matchingFileList[row]
-            print ("adding to right table, row \(row), item \(item)")
+            //print ("adding to right table, row \(row), item \(item)")
 
             
             if let cell = matchingFilesTableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier("FileCell"), owner: nil)
@@ -581,16 +605,20 @@ extension ViewController: NSTableViewDelegate {
 
     }
     
-    func displayFileInfo(theUrl: URL) {
-        infoAbout(url: theUrl, completion: { (retStr: NSAttributedString?) -> Void in
-            if let infoString = retStr {
-                self.infoTextView.textStorage?.setAttributedString(infoString)
-            } else {
-                print ("couldn't get info string for \(theUrl)")
-            }
-        })
-    }
+//    func displayFileInfo(theUrl: URL) {
+//        infoAbout(url: theUrl, completion: { (retStr: NSAttributedString?) -> Void in
+//            if let infoString = retStr {
+//                self.infoTextView.textStorage?.setAttributedString(infoString)
+//            } else {
+//                print ("couldn't get info string for \(theUrl)")
+//            }
+//        })
+//    }
     
+    // this function returns a substring, subtracting the parent directory
+    // path from the child director path. Example: if parent = /home/dave and
+    // the child = /home/dave/subdir/file1.txt, this this function would return
+    // /subdir/file1.txt
     func getRelativePath(parentUrl: URL, childUrl: URL) -> String {
         let parent = parentUrl.path
         let child = childUrl.path
